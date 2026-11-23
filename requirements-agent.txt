@@ -1,0 +1,4 @@
+# Extra packages for run.py classify and demo (the search of the HPO record index)
+faiss-cpu
+sentence-transformers
+rank-bm25

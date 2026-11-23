@@ -1,0 +1,9 @@
+# Prompt files and data are compared byte for byte; keep their line endings as committed.
+prompts/** -text
+data/** -text
+published_run/** -text
+tests/fixtures/** -text
+*.zip binary
+*.xlsx binary
+*.png binary
+*.pdf binary

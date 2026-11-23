@@ -1,0 +1,19 @@
+{
+  "data/hpo_terms.csv": "6f66dee3388d95589273be12319c23d5744fd7bebcc31ffb6fa1fedabf967a3c",
+  "data/ground_truth.xlsx": "0c34d6802003b95cb52a38a010a872d19010bf4f61128d1af0512c45688fe159",
+  "data/ground_truth_all_labelled.xlsx": "62b99784607fa87e091176c440d3b9b222b043ca6d518ea42794b01eadf28e26",
+  "data/gene_lists/CS_Gregg2021_tier3_genes_MIM.txt": "a3873ebcc261e95fc5b9d7160a39b73a32d13337e156c69fff3cc55ea44f7631",
+  "data/gene_lists/MackenziesMission_genes.csv": "1f1d4e1b6c0432a137183475f515817815f0e4c8e38f8e0ed2714e8c55ad9367",
+  "data/gene_lists/SF_ACMG_v3.2_genes_MIM.txt": "dc7387fb8b1a1bf2a67c468a51f0c89e9bf77386d333c7beee73fd53a49bca8e",
+  "data/inputs/gencc-submissions_2026-11-15.csv": "b869362c5dad31def2d22c9686958e49b22497e6b6a72feab1f329aa101e8fdc",
+  "data/inputs/hgnc_complete_set_2026-11-18.txt": "6df77ac3cbaeb86a6dce5e17d851ebb27b6b3cdcd2471a211a3d8464f00c54c4",
+  "data/inputs/hp_2025-05-06.obo": "ba2c34c78978a4df2d0d4e7af9ec28eade3c8f38a7c1f4d75d90d6ae87964d84",
+  "data/inputs/hp_2026-09-01.obo": "93dace952fcb3ec4728818857f6ba76bc2d5312f4d83266519b8694b8e798f22",
+  "data/inputs/human_intolerome_genes.tsv": "2910275b4d1daf5425e3b8979589a5615df8edc310a8e6518e4626dfd2392c3f",
+  "data/inputs/mondo_2026-09-01.json": "ba19a3be2a384f21d2a09eaa726daedf6f06b9747ae011ab81d29fcd4dd8d3ee",
+  "data/inputs/phenotype_2026-09-01.hpoa": "e89aa39c8f97bf5a52c5d160f9250a603681d630ade8ec2679d84ac5aece1f72",
+  "published_run/unpacked/agent_classifications.csv": "b573a8fe0e8840b73883ee31fd1944090080f29c9b454aecbb40be7341d60bd1",
+  "published_run/unpacked/gene_disease_table.csv": "71b5c3e42d649565651a0e2f2c76bf07a7746d50d43e4e099b324ad75e750ae8",
+  "published_run/baseline_answers.csv": "4c8466c1393f8cf1097babbf07b94f342763787d1b4ace0c0d644e4ebbe40efd",
+  "published_run/model_selection_summary.csv": "10227ac1c104c0bbc4985842d43ba573906e7b9de99d1418bc831e3089b489c0"
+}

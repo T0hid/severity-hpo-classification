@@ -1,0 +1,36 @@
+[project]
+name = "severity-hpo-classification"
+version = "1.0.0"
+description = "LLM agent that classifies Human Phenotype Ontology terms into clinical severity tiers, with the analyses of the paper"
+readme = "README.md"
+requires-python = ">=3.13"
+license = "MIT"
+authors = [{ name = "Tohid Ghasemnejad", email = "tohid.ghasemnejad@unsw.edu.au" }]
+dependencies = [
+    "numpy==2.5.3",
+    "pandas==3.0.5",
+    "scipy==1.18.1",
+    "scikit-learn==1.9.1",
+    "matplotlib==3.11.2",
+    "seaborn==0.13.2",
+    "openpyxl==3.1.5",
+    "requests==2.34.2",
+    "pronto==2.7.4",
+    "biopython==1.88",
+    "psutil==7.2.2",
+    "tqdm==4.70.1",
+]
+
+[project.optional-dependencies]
+test = ["pytest==9.1.1"]
+agent = ["faiss-cpu", "sentence-transformers", "rank-bm25"]
+
+[tool.setuptools]
+packages = ["hpo_severity"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 130
+target-version = "py313"

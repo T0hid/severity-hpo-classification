@@ -1,0 +1,85 @@
+{
+ "contexts": {
+  "HP:0001249": {
+   "id": "HP:0001249",
+   "name": "Intellectual disability",
+   "definition": "The term intellectual disability or intellectual developmental disorder is used to describe significantly sub-average intellectual and adaptive functioning based on clinical assessment and as measured by individually administered, appropriately normed, standardized and validated tests of intellectual functioning and adaptive behavior, with onset during the developmental period from infancy through adolescence.",
+   "synonyms": [
+    "Intellectual disability",
+    "Mental deficiency",
+    "Mental retardation",
+    "Mental retardation, nonspecific",
+    "Mental-retardation",
+    "Nonprogressive intellectual disability",
+    "Nonprogressive mental retardation"
+   ],
+   "comment": "This term should be used for children who are at least five years old. For younger children, consider using the term Global developmental delay (HP:0001263). According to the WHO classification, Disorders of intellectual development are a group of etiologically diverse conditions originating during the developmental period characterized by significantly below average intellectual functioning and adaptive behavior that are approximately two or more standard deviations below the mean (approximately less than the 2nd/3rd percentile, corresponding roughly to an IQ threshold of 70). A diagnosis of intellectual disability should not be based solely on the results of tests of intellectual and adaptive functioning; rather, it is based on a combination of clinical assessment and judgment in conjunction with the results of standardized tests of intellectual and adaptive functioning.",
+   "parents": [
+    "Abnormality of mental function",
+    "Neurodevelopmental abnormality"
+   ],
+   "children": [
+    "Borderline intellectual disability",
+    "Mild intellectual disability",
+    "Moderate intellectual disability",
+    "Profound intellectual disability",
+    "Severe intellectual disability"
+   ]
+  },
+  "HP:0000818": {
+   "id": "HP:0000818",
+   "name": "Abnormality of the endocrine system",
+   "definition": "An abnormality of the endocrine system.",
+   "synonyms": [],
+   "comment": "The endocrine system is composed of glands that secrete hormones directly into the bloodstream and includes the following glands: thyroid, parathyroids, adrenals, pancreas, gonads (testicles and ovaries), and pituitary. Many other organs, such as the kidney, liver, and heart, have secondary endocrine functions.",
+   "parents": [
+    "Phenotypic abnormality"
+   ],
+   "children": [
+    "Abnormal circulating hormone concentration",
+    "Abnormal endocrine morphology",
+    "Abnormal endocrine physiology",
+    "Abnormal thymus morphology",
+    "Abnormality of endocrine pancreas physiology",
+    "Abnormality of renin-angiotensin system",
+    "Abnormality of the adrenal glands",
+    "Abnormality of the hypothalamus-pituitary axis",
+    "Abnormality of the parathyroid gland",
+    "Abnormality of the pineal gland",
+    "Abnormality of the thyroid gland",
+    "Diabetes insipidus",
+    "Diabetes mellitus",
+    "Neoplasm of the endocrine system",
+    "Puberty and gonadal disorders"
+   ]
+  },
+  "HP:0002414": {
+   "id": "HP:0002414",
+   "name": "Spina bifida",
+   "definition": "Incomplete closure of the embryonic neural tube, whereby some vertebral arches remain unfused and open. The mildest form is spina bifida occulta, followed by meningocele and meningomyelocele.",
+   "synonyms": [],
+   "comment": "",
+   "parents": [
+    "Spinal dysraphism"
+   ],
+   "children": [
+    "Cervical spina bifida",
+    "Spina bifida occulta"
+   ]
+  }
+ },
+ "articles": [
+  {
+   "source": "PubMed",
+   "id": "11111111",
+   "title": "A congenital form of the phenotype",
+   "abstract": "This congenital form is inherited. This congenital form is inherited. This congenital form is inherited. This congenital form is inherited. This congenital form is inherited. This congenital form is inherited. This congenital form is inherited. This congenital form is inherited. "
+  },
+  {
+   "source": "PubMed",
+   "id": "22222222",
+   "title": "Management of the condition",
+   "abstract": "Patients needed surgery and follow-up. Patients needed surgery and follow-up. Patients needed surgery and follow-up. Patients needed surgery and follow-up. Patients needed surgery and follow-up. Patients needed surgery and follow-up. Patients needed surgery and follow-up. Patients needed surgery and follow-up. "
+  }
+ ]
+}
