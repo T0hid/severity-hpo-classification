@@ -12,6 +12,7 @@ installed, the metric-compatible Liberation Sans is used, so the layout is the s
 import re
 
 import matplotlib
+import matplotlib.axes
 from matplotlib import font_manager
 from matplotlib.collections import Collection, QuadMesh
 from matplotlib.lines import Line2D
@@ -111,35 +112,42 @@ def _shorten_ticklabels(ax):
             axis.set_ticks(axis.get_ticklocs(), [SHORT_LABELS.get(l, l) for l in labels])
 
 
+def _all_axes(fig):
+    return [o for o in fig.findobj(lambda o: isinstance(o, matplotlib.axes.Axes))]
+
+
 def _title_room(ax, t, renderer):
     """Width available to a panel title: from its left end to the right edge of the figure, or to the
-    labels of the next panel on its right when that panel's title is at the same height."""
+    nearest title or label of another panel at the same height."""
     fig = ax.get_figure(root=True)
     box = t.get_window_extent(renderer)
     right = fig.bbox.x1 - 4
-    for other in fig.get_axes():
+    for other in _all_axes(fig):
         if other is ax:
             continue
-        o = other.get_tightbbox(renderer)
-        if o is not None and o.x0 > box.x0 + 1 and o.y0 < box.y1 and o.y1 > box.y0:
-            right = min(right, o.x0 - 8)
+        texts = [other.title, other._left_title, other._right_title, other.yaxis.label]
+        texts += list(other.get_yticklabels())
+        for x in texts:
+            if not x.get_visible() or not x.get_text().strip():
+                continue
+            o = x.get_window_extent(renderer)
+            if o.x0 > box.x0 + 1 and o.y0 < box.y1 and o.y1 > box.y0:
+                right = min(right, o.x0 - 8)
     return right - box.x0
 
 
 def _wrap_titles(ax, renderer):
-    """Breaks a panel title that runs into the next panel or past the figure edge: first before the
-    part in brackets, then between words."""
+    """Breaks a panel title that would run into another panel or past the figure edge: first before
+    the part in brackets, then between words."""
     for t in (ax.title, ax._left_title, ax._right_title):
         text = t.get_text()
-        if not text.strip():
-            continue
-        room = _title_room(ax, t, renderer)
-        if t.get_window_extent(renderer).width <= room:
+        if not text.strip() or t.get_window_extent(renderer).width <= _title_room(ax, t, renderer):
             continue
         if " (" in text and "\n" not in text:
             t.set_text(text.replace(" (", "\n(", 1))
-            if t.get_window_extent(renderer).width <= room:
+            if t.get_window_extent(renderer).width <= _title_room(ax, t, renderer):
                 continue
+        room = _title_room(ax, t, renderer)
         lines = []
         for part in t.get_text().split("\n"):
             line = ""
