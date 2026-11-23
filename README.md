@@ -1,6 +1,6 @@
 # HPO severity classification agent
 
-Code, data and saved outputs for the manuscript "Large Language Model Agents for Evidence Based Genetic Disease Severity Classification". Archived at Zenodo: [10.5281/zenodo.24463717](https://doi.org/10.5281/zenodo.24463717).
+Code, data and saved outputs for the manuscript "Large Language Model Agents for Evidence Based Genetic Disease Severity Classification". Archived at Zenodo: [10.5281/zenodo.24463716](https://doi.org/10.5281/zenodo.24463716).
 
 The agent classifies Human Phenotype Ontology (HPO) terms into the clinical severity tiers of Lazarin et al. (Tiers 1 to 4) and into quality-of-life domains based on the PedsQL. For each term it reads the HPO record, maps the term to a MeSH heading, searches PubMed, and asks a language model (GPT-4o) to choose a category and the affected quality-of-life domains, with a quote and a reference for every factual claim. The tier follows from the category and the quality-of-life rating. A second agent then checks each cited claim against its source and gives the classification a support score. The phenotype classes are finally aggregated to gene-disease pairs and compared with clinical gene lists.
 
@@ -133,4 +133,4 @@ The published run used 202.9 million input and 56.6 million output tokens for th
 
 ## Licence and citation
 
-Code: MIT licence (`LICENSE`). Third-party data keep their own licences (`data/README.md`). If you use this code, please cite the article and the archived code (`CITATION.cff`, doi:10.5281/zenodo.24463717).
+Code: MIT licence (`LICENSE`). Third-party data keep their own licences (`data/README.md`). If you use this code, please cite the article and the archived code (`CITATION.cff`, doi:10.5281/zenodo.24463716).
