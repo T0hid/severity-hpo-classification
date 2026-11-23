@@ -5,8 +5,8 @@ These are the outputs analysed in the paper. `run.py verify` recomputes every co
 | File | Content |
 |---|---|
 | `agent_classifications.zip` | `agent_classifications.csv`: the agent output for all 10,652 HPO terms, one row per term, with the reasoning, the references, the verification of every cited claim and the cost (columns below). |
-| `baseline_answers.csv` | The no-retrieval baseline's answer for each of the 898 ground-truth terms: `classification_tier`, `classification_category`, `severity_assessment`, the tier the model wrote (`llm_tier`), the number of tries, the tokens used and the full model reply (`response_json`). |
-| `model_selection_summary.csv` | Model selection (Figure S1): one row per model, temperature and top_p with the share of the 14 terms whose tier, category and severity all matched the expert label (`overall_accuracy`), the mean response time per term in seconds (`avg_response_time`) and the cost in USD (`total_cost`). Six models, as in the manuscript. |
+| `baseline_answers.csv` | The no-retrieval baseline's answer for each of the 898 ground-truth terms: `classification_tier`, `classification_category`, `severity_assessment` (the quality-of-life rating), the tier the model wrote (`llm_tier`), the number of tries, the tokens used and the full model reply (`response_json`). |
+| `model_selection_summary.csv` | Model selection (Figure S1): one row per model, temperature and top_p with the share of the 14 terms whose tier, category and quality-of-life rating all matched the expert label (`overall_accuracy`), the mean response time per term in seconds (`avg_response_time`) and the cost in USD (`total_cost`). Six models, as in the manuscript. |
 | `gene_disease_table.zip` | `gene_disease_table.csv`: one row per gene, disease and HPO phenotype, with the severity class of each gene-disease pair (written by `gene_table.py`; `run.py verify` rebuilds it from the inputs and checks that it is identical). |
 
 ## Columns of `agent_classifications.csv`

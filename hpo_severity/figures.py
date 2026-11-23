@@ -301,9 +301,9 @@ Outputs (all written to OUTPUT_DIR):
   FigS2_QoL_Impact_Analysis.pdf
   Fig6_Management_Drivers.pdf
   FigS3CD_Distribution_and_Efficiency.pdf
-  comprehensive_analysis_report_COMPLETE.txt
+  analysis_report.txt
   Fig2_validation_composite.pdf
-  comprehensive_validation_report.txt
+  validation_report.txt
 """
 
     # =====================================================================
@@ -588,13 +588,6 @@ Outputs (all written to OUTPUT_DIR):
         df['has_early_onset'] = acog_parsed.apply(lambda x: x['early_onset'])
         df['num_qol_domains'] = df['qol_domains'].apply(len)
 
-        df['clinical_impact_score'] = (
-            (df['QoL_assessment'] == 'Affected').astype(int) * 0.40
-            + df['has_early_onset'].astype(int) * 0.25
-            + np.clip(df['num_qol_domains'] / 5, 0, 1) * 0.20
-            + np.clip(df['num_interventions'] / 5, 0, 1) * 0.15
-        )
-
         df['review_status'] = df['review_status'].str.strip()
         print("Preprocessing complete.")
         return df
@@ -612,7 +605,8 @@ Outputs (all written to OUTPUT_DIR):
         ax3 = fig.add_subplot(gs[1, 0])
         ax4 = fig.add_subplot(gs[1, 1])
 
-        category_tier = pd.crosstab(df['classification_category'], df['classification_tier'])
+        category_tier = pd.crosstab(df['classification_category'].fillna('NFC (Not Further Classified)'),
+                                    df['classification_tier'])
         category_tier['total'] = category_tier.sum(axis=1)
         category_tier.sort_values('total', ascending=False, inplace=True)
         category_tier_pct = (category_tier.drop('total', axis=1)
@@ -728,7 +722,7 @@ Outputs (all written to OUTPUT_DIR):
         ax3.set_xlabel('Classification Tier')
         ax3.set_ylabel('Statement Support Score')
         kw_str, *_ = calculate_kruskal(df_f, 'classification_tier', 'statement_support_score')
-        ax3.set_title(f'C. Confidence Score Distribution by Tier ({kw_str})',
+        ax3.set_title(f'C. Statement Support Score by Tier ({kw_str})',
                       loc='left', fontsize=12)
 
         ax4 = fig.add_subplot(gs[1, 1])
@@ -738,7 +732,7 @@ Outputs (all written to OUTPUT_DIR):
         ax4.set_ylabel('Classification Category')
         ax4.set_xlabel('Statement Support Score')
         kw_str, *_ = calculate_kruskal(df_f, 'classification_category', 'statement_support_score')
-        ax4.set_title(f'D. Confidence Score Distribution by Category ({kw_str})',
+        ax4.set_title(f'D. Statement Support Score by Category ({kw_str})',
                       loc='left', fontsize=12)
 
         for ax in [ax1, ax2, ax3, ax4]:
@@ -821,8 +815,7 @@ Outputs (all written to OUTPUT_DIR):
                           color=[colors[1], colors[2]], rot=0)
         ax2.set_xlabel('Classification Tier')
         ax2.set_ylabel('Percentage of Phenotypes (%)')
-        chi_str, *_ = calculate_chisquare(qol_tier)
-        ax2.set_title(f'B. QoL Status by Classification Tier ({chi_str})',
+        ax2.set_title('B. QoL Status by Classification Tier',
                       loc='left', fontsize=12)
         ax2.legend(title='QoL Status', frameon=False,
                    bbox_to_anchor=(1.02, 1), loc='upper left')
@@ -876,7 +869,7 @@ Outputs (all written to OUTPUT_DIR):
         qol_df = df.explode('qol_domains', ignore_index=True).dropna(subset=['qol_domains'])
         sns.countplot(data=qol_df, y='qol_domains', ax=ax2, color=colors[1],
                       order=qol_df['qol_domains'].value_counts().index)
-        ax2.set_title('B. Frequency of ACOG QoL Domains', loc='left', fontsize=12)
+        ax2.set_title('B. Frequency of PedsQL QoL Domains', loc='left', fontsize=12)
         ax2.set_xlabel('Count')
         ax2.set_ylabel('QoL Domain')
 
@@ -995,7 +988,7 @@ Outputs (all written to OUTPUT_DIR):
             ax_right.set_ylim(ax_joint.get_ylim())
             ax_right.axis('off')
 
-            ax_joint.set_xlabel('Agent Complexity (React Steps)', fontweight='bold')
+            ax_joint.set_xlabel('Agent Complexity (ReAct Steps)', fontweight='bold')
             ax_joint.set_ylabel('Total Cost (USD)', fontweight='bold')
             ax_joint.spines[['top', 'right']].set_visible(False)
             ax_joint.grid(linestyle='--', alpha=0.3)
@@ -1020,13 +1013,13 @@ Outputs (all written to OUTPUT_DIR):
     #  SECTION 5 : ANALYSIS TEXT REPORT
     # =====================================================================
     def generate_analysis_report(df, output_dir):
-        report_path = os.path.join(output_dir, 'comprehensive_analysis_report_COMPLETE.txt')
+        report_path = os.path.join(output_dir, 'analysis_report.txt')
         with open(report_path, 'w', encoding='utf-8') as f:
             def w(text):
                 f.write(text + '\n')
 
             w('=' * 80)
-            w('COMPREHENSIVE ANALYSIS REPORT - COMPLETE DATA')
+            w('ANALYSIS REPORT: FIGURES 3 TO 6, S2 AND S3')
             w('=' * 80)
             w(f'\nTotal Phenotypes Analyzed: {len(df):,}\n')
 
@@ -1039,7 +1032,8 @@ Outputs (all written to OUTPUT_DIR):
 
             w('\n\n2. CLINICAL LANDSCAPE ANALYSIS')
             w('-' * 50)
-            category_tier = pd.crosstab(df['classification_category'], df['classification_tier'])
+            category_tier = pd.crosstab(df['classification_category'].fillna('NFC (Not Further Classified)'),
+                                        df['classification_tier'])
             category_tier['total'] = category_tier.sum(axis=1)
             category_tier.sort_values('total', ascending=False, inplace=True)
             w('\n2A. TIER DISTRIBUTION BY CATEGORY (paper Figure 3A):')
@@ -1051,9 +1045,6 @@ Outputs (all written to OUTPUT_DIR):
                     if pct.loc[cat, tier] > 0:
                         w(f'  Tier {tier}: {pct.loc[cat, tier]:.1f}%')
                 w(f'  Total N: {category_tier.loc[cat, "total"]}')
-            chi2_val, p_val, dof, _ = chi2_contingency(category_tier.drop('total', axis=1))
-            w(f'\nChi-square (Category vs Tier): chi2={chi2_val:.2f}, df={dof}, '
-              f'p={XP.record("report: chi-square category x tier", "chi-square test of independence", f"chi2({dof}) = {chi2_val:.2f}", XP.chi2(chi2_val, dof))}')
 
             w('\n\n2B. EARLY ONSET PREVALENCE BY CATEGORY (paper Figure 3B):')
             df_onset = df[~df['classification_category'].str.contains(
@@ -1131,6 +1122,8 @@ Outputs (all written to OUTPUT_DIR):
             chi2_val, p_val, dof, _ = chi2_contingency(qol_cat)
             w(f'\nChi-square: chi2={chi2_val:.2f}, df={dof}, '
               f'p={XP.record("report: chi-square QoL status x category", "chi-square test of independence", f"chi2({dof}) = {chi2_val:.2f}", XP.chi2(chi2_val, dof))}')
+            n_rad = int(df['management_categories'].apply(lambda c: 'Radiation Therapy' in c).sum())
+            w(f'\n5C. Phenotypes with Radiation Therapy in the management profile (left out of Supplementary Figure S2C): {n_rad}')
 
             w('\n\n6. MANAGEMENT STRATEGY DRIVERS')
             w('-' * 50)
@@ -1188,21 +1181,11 @@ Outputs (all written to OUTPUT_DIR):
             no_onset = df[~df['has_early_onset']]
             w(f'With Early Onset: {len(onset)} ({len(onset)/len(df)*100:.1f}%)')
             w(f'Without Early Onset: {len(no_onset)} ({len(no_onset)/len(df)*100:.1f}%)')
-            w(f'Clinical Impact Score with Early Onset: '
-              f'{onset["clinical_impact_score"].mean():.3f} +/- '
-              f'{onset["clinical_impact_score"].std():.3f}')
-            w(f'Clinical Impact Score without Early Onset: '
-              f'{no_onset["clinical_impact_score"].mean():.3f} +/- '
-              f'{no_onset["clinical_impact_score"].std():.3f}')
 
-            w('\n\n9. KEY CORRELATIONS')
+            w('\n\n9. COST AND REACT STEPS (paper Figure S3D)')
             w('-' * 50)
             pairs = [
-                ('clinical_impact_score', 'verify_weighted_score', 'Clinical Impact vs Evidence Score'),
-                ('clinical_impact_score', 'num_interventions',     'Clinical Impact vs Interventions'),
-                ('total_cost_usd',        'react_steps',           'Cost vs React Steps'),
-                ('num_qol_domains',       'num_interventions',     'QoL Domains vs Interventions'),
-                ('statement_support_score', 'verify_weighted_score', 'Support Score vs Weighted Score'),
+                ('total_cost_usd',        'react_steps',           'Cost vs ReAct Steps'),
             ]
             for v1, v2, label in pairs:
                 if v1 in df.columns and v2 in df.columns:
@@ -1477,11 +1460,9 @@ Outputs (all written to OUTPUT_DIR):
         for bar, v in zip(bars, vals):
             ax.text(bar.get_x() + bar.get_width()/2, bar.get_height() + 0.015,
                     f'{v:.3f}', ha='center', va='bottom', fontsize=13, weight='bold')
-        ax.axhline(0.8, color='grey', ls='--', lw=1, alpha=0.6, label='0.80 reference')
-        ax.set_ylim(0, 1.25)
+        ax.set_ylim(0, 1.05)
         ax.set_ylabel('Score', fontsize=16, weight='bold')
         ax.set_title('A   Overall Model Performance', fontsize=18, weight='bold', loc='left')   # Figure 2 A
-        ax.legend(fontsize=12, loc='upper right')
         ax.grid(axis='y', ls='--', alpha=0.3)
         if own:
             fig.tight_layout()
@@ -1895,7 +1876,7 @@ Outputs (all written to OUTPUT_DIR):
                 comparison_df['Ideal Count'] - comparison_df['Current Count'])
             comparison_df.sort_index(inplace=True)
 
-            report_path = os.path.join(OUTPUT_DIR, 'comprehensive_validation_report.txt')
+            report_path = os.path.join(OUTPUT_DIR, 'validation_report.txt')
             print(f'Writing validation report -> {report_path}')
             report = generate_validation_report(
                 y_true_cat, y_pred_cat, y_true_tier, y_pred_tier,
@@ -1966,10 +1947,10 @@ Outputs (all written to OUTPUT_DIR):
         print('  FigS2_QoL_Impact_Analysis.pdf')
         print('  Fig6_Management_Drivers.pdf')
         print('  FigS3CD_Distribution_and_Efficiency.pdf')
-        print('  comprehensive_analysis_report_COMPLETE.txt')
+        print('  analysis_report.txt')
         print('\nValidation outputs:')
         print('  Fig2_validation_composite.pdf')
-        print('  comprehensive_validation_report.txt')
+        print('  validation_report.txt')
         print('=' * 80 + '\n')
 
 
@@ -1994,8 +1975,8 @@ Outputs (all written to OUTPUT_DIR):
     _add('S1', '3_combined_performance_heatmap', 'supplementary/FigureS1_model_selection')
     _add('notebook', 'FigS2_QoL_Impact_Analysis', 'supplementary/FigureS2_QoL_status_management')
     _add('notebook', 'FigS3_composite', 'supplementary/FigureS3_PSI_confusion_support_efficiency')
-    _add('notebook', 'comprehensive_validation_report', 'data_and_reports/validation_report_Figure2', ('.txt',))
-    _add('notebook', 'comprehensive_analysis_report_COMPLETE', 'data_and_reports/analysis_report_Figures3to6_S2_S3', ('.txt',))
+    _add('notebook', 'validation_report', 'data_and_reports/validation_report_Figure2', ('.txt',))
+    _add('notebook', 'analysis_report', 'data_and_reports/analysis_report_Figures3to6_S2_S3', ('.txt',))
     _add('notebook', 'validation_terms_scored', 'data_and_reports/validation_terms_scored', ('.csv',))
     _add('figure7', 'figure7_data', 'data_and_reports/figure7_data', ('.xlsx',))
     _add('notebook', 'baseline_scores_CS_nontiered', 'data_and_reports/baseline_scores_Figure2E', ('.csv',))

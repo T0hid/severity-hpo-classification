@@ -378,7 +378,9 @@ def run(output_dir, gene_table=None):
     P, R, EARLY = analysis('freq', include_limited=False)
     L = P[P.severity_freq != '']
     note(f'Pairs in the analysis: {len(P):,} of {len(PAIRS_ALL):,} (Limited-only pairs excluded: {len(PAIRS_ALL) - len(P)}); '
-         f'labelled {len(L):,}; not labelled {P[P.severity_freq == ""].status_freq.value_counts().to_dict()}')
+         f'labelled {len(L):,} ({L.index.get_level_values("HGNC").nunique():,} genes, '
+         f'{L.index.get_level_values("MONDO_ID").nunique():,} diseases); '
+         f'not labelled {P[P.severity_freq == ""].status_freq.value_counts().to_dict()}')
 
     # 7A
     A = L.severity_freq.value_counts().reindex(CLASSES).rename('pairs').to_frame()

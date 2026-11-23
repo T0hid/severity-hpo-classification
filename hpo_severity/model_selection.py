@@ -4,7 +4,7 @@ Model selection (Supplementary Figure S1).
 Each candidate model is run with every combination of temperature (0.0, 0.2, 0.5) and top_p (1.0,
 0.95, 0.9) on 14 expert-labelled HPO terms (GROUND_TRUTH below), with the prompt in
 prompts/model_selection/. For each term the prompt includes up to two PubMed review or clinical-trial
-abstracts. A configuration is scored by the share of terms whose tier, category and severity all
+abstracts. A configuration is scored by the share of terms whose tier, category and quality-of-life rating all
 match. The summary of the paper's run is published_run/model_selection_summary.csv.
 
 Run it through the entry point: python run.py model-selection (needs OPENROUTER_API_KEY and NCBI_EMAIL).
@@ -171,12 +171,12 @@ def extract_json_from_text(text: str) -> Optional[Dict]:
 
 # --- API AND EVALUATION ---
 def call_openrouter_api(prompt: str, model: str, temperature: float, top_p: float) -> Tuple[Optional[Dict], float, int, int]:
-    """Calls the OpenRouter API with a more forceful system prompt."""
+    """Calls the OpenRouter API."""
     start_time = time.time()
     headers = {
         "Authorization": f"Bearer {OPENROUTER_API_KEY}",
         "Content-Type": "application/json",
-        "X-Title": "HPO Classification Research v3" # Optional: Project title
+        "X-Title": "HPO Classification Agent"
     }
     
     system_message = (
@@ -201,10 +201,6 @@ def call_openrouter_api(prompt: str, model: str, temperature: float, top_p: floa
         
         if not parsed:
             print(f"Could not extract JSON from {model}.")
-            debug_file = os.path.join(OUTPUT_DIR, f"debug_{model.replace('/', '_')}_{int(time.time())}.txt")
-            with open(debug_file, 'w', encoding='utf-8') as f:
-                f.write(f"MODEL: {model}\n\nPROMPT:\n{prompt}\n\nRESPONSE:\n{content}")
-            print(f"   Debug file saved: {debug_file}")
             return None, elapsed_time, 0, 0
             
         usage = result.get('usage', {})
@@ -214,7 +210,7 @@ def call_openrouter_api(prompt: str, model: str, temperature: float, top_p: floa
         return parsed, elapsed_time, prompt_tokens, completion_tokens
 
     except requests.exceptions.Timeout:
-        print(f"⏱️ TIMEOUT for {model}.")
+        print(f"Timeout for {model}.")
         return None, 180.0, 0, 0
     except requests.exceptions.RequestException as e:
         error_content = e.response.text if e.response else "No response body."

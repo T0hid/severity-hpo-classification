@@ -1,6 +1,6 @@
 # HPO severity classification agent
 
-Code, data and saved outputs for the manuscript "Large Language Model Agents for Evidence Based Genetic Disease Severity Classification".
+Code, data and saved outputs for the manuscript "Large Language Model Agents for Evidence Based Genetic Disease Severity Classification". Archived at Zenodo: [10.5281/zenodo.24463717](https://doi.org/10.5281/zenodo.24463717).
 
 The agent classifies Human Phenotype Ontology (HPO) terms into the clinical severity tiers of Lazarin et al. (Tiers 1 to 4) and into quality-of-life domains based on the PedsQL. For each term it reads the HPO record, maps the term to a MeSH heading, searches PubMed, and asks a language model (GPT-4o) to choose a category and the affected quality-of-life domains, with a quote and a reference for every factual claim. The tier follows from the category and the quality-of-life rating. A second agent then checks each cited claim against its source and gives the classification a support score. The phenotype classes are finally aggregated to gene-disease pairs and compared with clinical gene lists.
 
@@ -49,7 +49,7 @@ These commands use the saved outputs of the run reported in the paper (`publishe
 
 | Command | What it does | Time |
 |---|---|---|
-| `python run.py verify` | Unpacks the data and checks every file against its SHA-256; scores the agent and the baseline against the ground truth; rebuilds the gene-disease table from the inputs and checks that it is identical to the published one; redraws the figures; recomputes 493 numbers of the manuscript and reports PASSED or FAILED for each. Report: `outputs/verify/verify_report.md`. | about 2 minutes |
+| `python run.py verify` | Unpacks the data and checks every file against its SHA-256; scores the agent and the baseline against the ground truth; rebuilds the gene-disease table from the inputs and checks that it is identical to the published one; redraws the figures; recomputes 499 numbers of the manuscript and reports PASSED or FAILED for each. Report: `outputs/verify/verify_report.md`. | about 2 minutes |
 | `python run.py figures` | Redraws Figures 2 to 7 and S1 to S3 and writes the validation and analysis reports. Add `--rebuild-gene-table` to rebuild the gene-disease table from the inputs first. | about 1 minute |
 | `python -m pytest tests` | Unit tests, including checks that the prompts are unchanged and that the baseline prompt is the agent's classification prompt without the sources. | about 10 seconds |
 
@@ -82,7 +82,7 @@ With a key, a column `this run` is added. A new run can differ from the saved on
 
 ## Where each result comes from
 
-`outputs/verify/verify_report.md` lists all 493 checked numbers one by one, each with the manuscript value, the recomputed value and the output it comes from.
+`outputs/verify/verify_report.md` lists all 499 checked numbers one by one, each with the manuscript value, the recomputed value and the output it comes from.
 
 The figures and tables are drawn by:
 
@@ -100,7 +100,7 @@ The figures and tables are drawn by:
 | Gene-disease pair counts (Results, gene level) | log of `gene_table.py` (`outputs/verify/work/logs/gene.log`) | `gene_table.py` |
 | Figure S1 | `supplementary/FigureS1_model_selection.pdf` | `figures.py` (Part 1), from `published_run/model_selection_summary.csv` |
 | Figure S2, Supplementary Table 2 | `supplementary/FigureS2_QoL_status_management.pdf`, analysis report section 5, `data_and_reports/phenotype_table_Figures3to6_S2.csv` | `figures.py`; intervention shares by QoL status in `manuscript_numbers.py` |
-| Figure S3 | `supplementary/FigureS3_PSI_confusion_support_efficiency.pdf`, analysis report sections 7 and 10 | `figures.py` |
+| Figure S3 | `supplementary/FigureS3_PSI_confusion_support_efficiency.pdf`, analysis report sections 7, 9 and 10 | `figures.py` |
 | Supplementary Table 1 (category definitions) | the category definitions in `create_final_classification_prompt()` | `agent.py` |
 
 ## Figures
@@ -114,7 +114,7 @@ P values are exact. Several are below the smallest number a float can hold, so `
 - Model: `openai/gpt-4o` through OpenRouter, which served the `gpt-4o-2024-11-20` snapshot. Temperature 0.2 for every call of the agent, the verification agent and the baseline. Other sampling settings are left at the provider defaults.
 - Prompts: the agent's prompts are built in `hpo_severity/agent.py`; the baseline and model-selection prompts are files in `prompts/` (see `prompts/README.md`).
 - Retrieval: the planner takes at most 12 steps per term. The agent maps the term to a MeSH heading and asks the model for common clinical names of the phenotype; with the HPO synonyms and the MeSH heading these give up to 15 queries. The queries search a local index of HPO term records (PubMedBERT embeddings with FAISS, and BM25), and the best record with a score of at least 0.75 is the first source. PubMed is then searched with the MeSH heading and the term's name and synonyms, first with a genetic-context filter and then without it, until a search returns articles (up to 20 PubMed IDs); the first 10 abstracts longer than 100 characters are kept. With fewer than 5 sources, or fewer than 3 at the classification step, the model lists related genetic syndromes, which are added to the queries, and the searches are run again.
-- Classification: the model returns the category, the affected PedsQL domains and its reasoning in one reply. A term is rated Severe when at least one domain is affected or when its category is a Tier 1 or Tier 2 category. A Severe term takes the tier of its category and a Non-Severe term Tier 4; Out of Scope and NFC terms get no tier.
+- Classification: the model returns the category, the affected PedsQL domains and its reasoning in one reply. A term is rated as affecting quality of life when at least one domain is affected or when its category is a Tier 1 or Tier 2 category. A term rated as affecting quality of life takes the tier of its category, and a term rated as not affecting it takes Tier 4; Out of Scope and NFC terms get no tier.
 - Verification: sentences ending in a `[Ref #]` tag are taken from the conclusion and from the functional impact and severity sections of the reasoning, leaving out the agent's own classification statements, and the model rates each against its cited source as direct (weight 1.0), valid inference (0.90), weak inference (0.60) or unsupported (0); a claim that cites a reference that does not exist is unsupported. The support score is the mean weight. A classification is flagged for review when its score is below 0.5.
 - HPO releases: 10,211 of the 10,652 terms were classified with HPO release 2025-05-06 and the other 441 with HPO release 2026-09-01. The column `hpo_release` of `published_run/agent_classifications.zip` gives the release of each term. `run.py classify` reads HPO release 2025-05-06 by default; `--hpo-release 2026-09-01` gives the setting of the 441 terms.
 - Rerunning: a new run will not give identical output. The model can change behind the same name, PubMed grows, and sampling at temperature 0.2 is not deterministic. The saved outputs in `published_run/` are the reference for every number in the paper; `run.py verify` recomputes the numbers from them.
@@ -133,4 +133,4 @@ The published run used 202.9 million input and 56.6 million output tokens for th
 
 ## Licence and citation
 
-Code: MIT licence (`LICENSE`). Third-party data keep their own licences (`data/README.md`). If you use this code, please cite the article (see `CITATION.cff`).
+Code: MIT licence (`LICENSE`). Third-party data keep their own licences (`data/README.md`). If you use this code, please cite the article and the archived code (`CITATION.cff`, doi:10.5281/zenodo.24463717).

@@ -172,10 +172,10 @@ add("abs-evid-lo", "Abstract", "claims direct or valid inference, lowest tier", 
     lambda R: min(evidence_tier(R, t, "Direct Support") + evidence_tier(R, t, "Valid Inferences") for t in (1, 2, 3, 4)), REPORT)
 add("abs-evid-hi", "Abstract", "claims direct or valid inference, highest tier", "91.5%",
     lambda R: max(evidence_tier(R, t, "Direct Support") + evidence_tier(R, t, "Valid Inferences") for t in (1, 2, 3, 4)), REPORT)
-add("abs-pairs", "Abstract", "gene-disease pairs with a class", "6,709", lambda R: R.f7["7A"].pairs.sum(), F7)
-add("abs-sp", "Abstract", "pairs Severe or Profound", "73.8%",
+add("abs-pairs", "Results, gene level", "gene-disease pairs with a class", "6,709", lambda R: R.f7["7A"].pairs.sum(), F7)
+add("abs-sp", "Results, gene level", "pairs Severe or Profound", "73.8%",
     lambda R: 100 * R.f7["7A"].set_index("severity").loc[["Profound", "Severe"], "pairs"].sum() / R.f7["7A"].pairs.sum(), F7)
-add("abs-ar", "Abstract", "autosomal recessive pairs Severe or Profound", "78.9%",
+add("abs-ar", "Results, gene level", "autosomal recessive pairs Severe or Profound", "78.9%",
     lambda R: (lambda r: 100 * (r.Profound + r.Severe) / r.pairs)(R.f7row("7C", "inheritance", "Autosomal recessive")), F7)
 add("abs-genes", "Abstract", "genes in the analysis", "4,531", lambda R: R.f7row("7D", "gene_set", "All genes (base rate)").genes_labelled, F7)
 add("abs-genes-sp", "Abstract", "genes with a Severe or Profound condition", "79.0%",
@@ -186,7 +186,6 @@ add("abs-mm", "Abstract", "Mackenzie's Mission genes Severe or Profound", "90.2%
     lambda R: (lambda r: 100 * (r.Profound + r.Severe) / r.genes_labelled)(R.f7row("7D", "gene_set", "Mackenzie's Mission")), F7)
 add("abs-intol", "Abstract", "Human Intolerome genes Severe or Profound", "92.9%",
     lambda R: (lambda r: 100 * (r.Profound + r.Severe) / r.genes_labelled)(R.f7row("7D", "gene_set", "Human Intolerome (fetal effect)")), F7)
-add("sum-agree", "Summary", "agreement with experts", "90%", lambda R: pct(R.score("category", "main run", "accuracy")), SCORES)
 
 # ================================================================== Results: model selection
 MS_MODELS = {"openai/gpt-5": "GPT-5", "x-ai/grok-4": "Grok-4", "google/gemini-2.5-pro": "Gemini-2.5-pro",
@@ -214,7 +213,7 @@ add("val-n", "Results, validation", "validation terms", "898", lambda R: len(R.v
 add("val-psi", "Results, validation", "PSI", "0.0303", lambda R: float(re.search(r"PSI = ([\d.]+)", R.vreport).group(1)), VREPORT)
 add("val-pw", "Results, validation", "weighted precision", "91.0%", lambda R: pct(R.cat_metrics()["precision_w"]), VAL)
 add("val-rw", "Results, validation", "weighted recall", "90.4%", lambda R: pct(R.cat_metrics()["recall_w"]), VAL)
-add("val-fw", "Results, validation", "weighted F1", "90.4%", lambda R: pct(R.cat_metrics()["f1_w"]), VAL)
+add("val-fw", "Results, validation", "weighted F1", "0.904", lambda R: R.cat_metrics()["f1_w"], VAL)
 add("val-mcc", "Results, validation", "MCC", "0.889", lambda R: R.cat_metrics()["mcc"], VAL)
 add("val-kappa", "Results, validation", "Cohen's kappa", "0.888", lambda R: R.cat_metrics()["kappa"], VAL)
 add("val-bal", "Results, validation", "balanced accuracy", "92.9%", lambda R: pct(R.cat_metrics()["balanced"]), VAL)
@@ -425,7 +424,7 @@ add("op-cost-max", "Results, operational", "highest cost per term (USD)", "$0.19
 add("op-cost-sd", "Results, operational", "SD cost (USD)", "$0.018", lambda R: R.cls.total_cost_usd.std(), CLS)
 add("op-cost-q1", "Results, operational", "cost, 25th percentile (USD)", "$0.089", lambda R: R.cls.total_cost_usd.quantile(0.25), CLS)
 add("op-cost-q3", "Results, operational", "cost, 75th percentile (USD)", "$0.112", lambda R: R.cls.total_cost_usd.quantile(0.75), CLS)
-add("op-r", "Results, operational", "Pearson r, cost and steps", "0.40", lambda R: float(R.stat(r"Cost vs React Steps:\n  Pearson r=([\d.]+)")[0]), REPORT)
+add("op-r", "Results, operational", "Pearson r, cost and steps", "0.40", lambda R: float(R.stat(r"Cost vs ReAct Steps:\n  Pearson r=([\d.]+)")[0]), REPORT)
 add("op-flag", "Results, operational", "classifications flagged for review", "1,169", lambda R: int((R.cls.review_status != "OK").sum()), CLS)
 add("op-flag-p", "Results, operational", "share flagged", "11.0%", lambda R: 100 * (R.cls.review_status != "OK").mean(), CLS)
 
@@ -435,7 +434,15 @@ add("gl-mondo", "Results, gene level", "pairs from MONDO", "6,458", lambda R: R.
 add("gl-gencc", "Results, gene level", "pairs added from GenCC", "2,009", lambda R: R.log_int(r"'GenCC_DSM_only': (\d+)\}")[0], GLOG)
 add("gl-limited", "Results, gene level", "pairs with only Limited GenCC support", "359", lambda R: R.log_int(r"flagged Limited-only (\d+)")[0], GLOG)
 add("gl-analysed", "Results, gene level", "pairs analysed", "8,108", lambda R: R.log_int(r"Pairs in the analysis: ([\d,]+) of")[0], GLOG)
-add("gl-labelled", "Results, gene level", "pairs with a severity class", "6,709", lambda R: R.log_int(r"labelled ([\d,]+);")[0], GLOG)
+add("gl-labelled", "Results, gene level", "pairs with a severity class", "6,709", lambda R: R.log_int(r"labelled ([\d,]+) \(")[0], GLOG)
+add("gl-labelled-genes", "Results, gene level", "genes in the pairs with a severity class", "4,531",
+    lambda R: R.log_int(r"labelled [\d,]+ \(([\d,]+) genes")[0], GLOG)
+add("gl-labelled-diseases", "Results, gene level", "diseases in the pairs with a severity class", "6,281",
+    lambda R: R.log_int(r"labelled [\d,]+ \([\d,]+ genes, ([\d,]+) diseases\)")[0], GLOG)
+add("gl-umbrella-pairs", "Results, gene level", "GenCC-added pairs removed on diseases with more than 10 genes", "1,151",
+    lambda R: R.log_int(r"more than 10 genes: ([\d,]+) pairs on ([\d,]+) diseases")[0], GLOG)
+add("gl-umbrella-diseases", "Results, gene level", "diseases with more than 10 genes whose GenCC-added pairs were removed", "24",
+    lambda R: R.log_int(r"more than 10 genes: ([\d,]+) pairs on ([\d,]+) diseases")[1], GLOG)
 for sev, n, p in (("Profound", "2,436", "36.3%"), ("Severe", "2,518", "37.5%"), ("Moderate", "1,433", "21.4%"), ("Mild", "322", "4.8%")):
     add(f"gl-{sev}-n", "Results, gene level", f"{sev} pairs", n, lambda R, sev=sev: R.f7["7A"].set_index("severity").loc[sev, "pairs"], F7)
     add(f"gl-{sev}-p", "Results, gene level", f"{sev} share", p, lambda R, sev=sev: 100 * R.f7["7A"].set_index("severity").loc[sev, "pairs"] / R.f7["7A"].pairs.sum(), F7)
@@ -512,6 +519,10 @@ add("gl-unclass", "Results, gene level", "pairs without a class", "1,399", lambd
 add("gl-unclass-a", "Results, gene level", "of these, no phenotype annotation", "1,376", lambda R: R.log_int(r"not labelled \{'no_phenotypes': (\d+)")[0], GLOG)
 add("gl-unclass-b", "Results, gene level", "of these, only NFC phenotypes", "17", lambda R: R.log_int(r"not labelled \{[^}]*'excluded_nfc_only': (\d+)")[0], GLOG)
 add("gl-unclass-c", "Results, gene level", "of these, no phenotype after the frequency filter", "6", lambda R: R.log_int(r"not labelled \{[^}]*'no_phenotypes_after_frequency_filter': (\d+)")[0], GLOG)
+add("onset-chi2", "Results, management", "chi-square, early onset by category", "1,131.92",
+    lambda R: float(R.stat(r"Chi-square \(Early Onset vs Category\): chi2=([\d.]+), df=12")[0]), REPORT)
+add("s2-radiation", "Supplementary Figure S2 legend", "phenotypes with radiation therapy (left out of Figure S2C)", "1",
+    lambda R: int(R.stat(r"left out of Supplementary Figure S2C\): (\d+)")[0]), REPORT)
 add("gl-noinh", "Results, gene level; Figure 7C legend", "classified pairs without inheritance", "38", lambda R: R.log_int(r"pairs without inheritance annotation \(left out\): (\d+)")[0], GLOG)
 add("m-list-sf", "Methods", "ACMG SF v3.2 genes", "81", lambda R: R.f7row("7D", "gene_set", "ACMG SF v3.2").genes_in_list, F7)
 add("m-list-cs", "Methods", "ACMG carrier screening genes", "113", lambda R: R.f7row("7D", "gene_set", "ACMG carrier screening").genes_in_list, F7)
@@ -531,7 +542,8 @@ for id_, where, what, printed, key in (
         ("p-qol-cat", "Results, QoL", "P, QoL domain by category (chi-square)", "1.1 × 10⁻⁷³⁴", "figure: chi-square classification_category x qol_domains"),
         ("p-mgmt-tier", "Results, management", "P, interventions by tier (Kruskal-Wallis)", "5.0 × 10⁻¹⁵⁶", "report: Kruskal-Wallis interventions by tier"),
         ("p-mgmt-cat", "Results, management", "P, interventions by category (Kruskal-Wallis)", "4.3 × 10⁻¹¹⁴", "report: Kruskal-Wallis interventions by category"),
+        ("p-onset-cat", "Results, management", "P, early onset by category (chi-square)", "7.9 × 10⁻²³⁵", "report: chi-square early onset x category"),
         ("p-s2-cat", "Results, QoL status", "P, QoL status by category (chi-square)", "7.6 × 10⁻⁵⁹²", "report: chi-square QoL status x category"),
         ("p-s2-mgmt", "Results, QoL status", "P, management by QoL status (chi-square)", "7.8 × 10⁻⁴⁹⁶", "figure: chi-square QoL_assessment x management_categories"),
-        ("p-op-r", "Results, operational", "P, Pearson r of cost and steps", "2.5 × 10⁻⁴¹⁰", "report: Pearson Cost vs React Steps")):
+        ("p-op-r", "Results, operational", "P, Pearson r of cost and steps", "2.5 × 10⁻⁴¹⁰", "report: Pearson Cost vs ReAct Steps")):
     add(id_, where, what, printed, lambda R, key=key: exact_p(R, key), EXACTP)
