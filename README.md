@@ -21,7 +21,6 @@ The agent classifies Human Phenotype Ontology (HPO) terms into the clinical seve
 
 - Linux, macOS or Windows with Python 3.13. Tested on Ubuntu 24.04 (x86-64) with Python 3.13.18 and the package versions in `requirements.txt`; `docs/tested_environment.txt` lists every installed package. The GitHub Actions workflow runs the tests on Ubuntu 24.04.
 - About 4 GB of memory (`run.py verify` peaked at 3.2 GB) and 1 GB of free disk space (the data files are unpacked on first use). No GPU.
-- Optional: Arial or Helvetica for the figure text. Without them the figures use Liberation Sans, which has the same letter widths (see Figures below).
 - An OpenRouter API key and an email address for NCBI only for the commands that call the language model (`classify`, `baseline`, `model-selection`, and `demo` when it classifies).
 - For `classify` and `demo` only: the packages in `requirements-agent.txt` (FAISS, sentence-transformers and rank-bm25) and the index of HPO term records (`--index`, a folder with `docs.faiss`, `bm25.pkl` and `documents.pkl`).
 
