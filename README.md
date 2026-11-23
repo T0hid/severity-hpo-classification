@@ -89,8 +89,8 @@ The figures and tables are drawn by:
 | Manuscript item | Output file (under the `figures` or `verify` output folder) | Code |
 |---|---|---|
 | Figure 1, Figure S4 | drawings, not code output | |
-| Figure 2 (A to F), validation metrics in Results | `main/Figure2_validation.pdf`, `data_and_reports/validation_report_Figure2.txt`, `data_and_reports/validation_terms_scored.csv` | `figures.py` (Part 2) |
-| Agent against baseline (Results, Figure 2E, F) | `_work/baseline/scores.csv`, `_work/baseline/per_term_results.csv` | `baseline.py` (`score`) |
+| Figure 2 (a to f), validation metrics in Results | `main/Figure2_validation.pdf`, `data_and_reports/validation_report_Figure2.txt`, `data_and_reports/validation_terms_scored.csv` | `figures.py` (Part 2) |
+| Agent against baseline (Results, Figure 2e, f) | `_work/baseline/scores.csv`, `_work/baseline/per_term_results.csv` | `baseline.py` (`score`) |
 | Figure 3 | `main/Figure3_clinical_landscape.pdf`, `data_and_reports/analysis_report_Figures3to6_S2_S3.txt` (sections 1 and 2) | `figures.py` |
 | Figure 4 | `main/Figure4_evidence_quality.pdf`, analysis report section 3 | `figures.py` |
 | Figure 5, Table 1 | `main/Figure5_QoL_domains.pdf`, analysis report section 4, `data_and_reports/phenotype_table_Figures3to6_S2.csv` | `figures.py`; shares by category in `manuscript_numbers.py` |
@@ -105,7 +105,7 @@ The figures and tables are drawn by:
 
 ## Figures
 
-`run.py figures` and `run.py verify` draw every figure at Nature Communications print size with `hpo_severity/style.py`: 180 mm wide, text 5.5 to 7.5 pt, lines scaled to the figure, Arial (or Helvetica; where neither is installed, Liberation Sans, which has the same letter widths, so the layout is the same). Each figure is written as a vector PDF with the fonts embedded as TrueType and as a 300 dpi PNG. Figure 2 and Supplementary Figure S3 are each drawn as one vector figure. Colour maps and bar colours are colour-blind safe. Figure 6A's shaded confidence band comes from a seeded bootstrap (`seed=42`), so it is the same on every run. The data in the figures do not depend on the fonts, and `run.py verify` checks the numbers, not the pixels.
+`run.py figures` and `run.py verify` draw every figure at Nature Communications print size with `hpo_severity/style.py`: 180 mm wide, text 5.5 to 7.5 pt, lines scaled to the figure, Arial (or Helvetica; where neither is installed, Liberation Sans, which has the same letter widths, so the layout is the same). Each figure is written as a vector PDF with the fonts embedded as TrueType and as a 300 dpi PNG. Figure 2 and Supplementary Figure S3 are each drawn as one vector figure. Colour maps and bar colours are colour-blind safe. Figure 6a's shaded confidence band comes from a seeded bootstrap (`seed=42`), so it is the same on every run. The data in the figures do not depend on the fonts, and `run.py verify` checks the numbers, not the pixels.
 
 P values are exact. Several are below the smallest number a float can hold, so `hpo_severity/exact_p.py` computes log10 P on the log scale with the same test and approximation as scipy, and `run.py figures` writes every test with its P value to `data_and_reports/exact_p_values.csv`.
 

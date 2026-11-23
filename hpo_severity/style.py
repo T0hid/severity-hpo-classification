@@ -24,21 +24,16 @@ MAX_HEIGHT_MM = 225     # page height available to a figure and its title
 FONT_MIN, FONT_MAX = 5.5, 7.5
 PNG_DPI = 300
 
-# shorter category names for tick labels, so two panels fit side by side at 180 mm
+# category names on the figures, as written in the manuscript
 SHORT_LABELS = {
-    "Shortened life span: childhood/adolescence": "Shortened lifespan: child",
-    "Shortened life span: adulthood": "Shortened lifespan: adult",
-    "Shortened life span: infancy": "Shortened lifespan: infancy",
-    "Sensory impairment: touch, others": "Sensory: touch, others",
-    "Sensory Impairment – Hearing": "Sensory: hearing",
-    "Sensory Impairment – Vision": "Sensory: vision",
-    "Sensory Impairment - Hearing": "Sensory: hearing",
-    "Sensory Impairment - Vision": "Sensory: vision",
-    "Internal physical malformations": "Internal malformations",
+    "Sensory impairment: touch, others": "Sensory impairment: touch, others",
+    "Sensory Impairment – Hearing": "Sensory impairment: hearing",
+    "Sensory Impairment – Vision": "Sensory impairment: vision",
+    "Sensory Impairment - Hearing": "Sensory impairment: hearing",
+    "Sensory Impairment - Vision": "Sensory impairment: vision",
     "Out of Scope: Acquired/Multifactorial": "Out of Scope",
     "NFC (Not Further Classified)": "NFC",
-    "NFC - Clinical Signs": "Clinical sign/lab",
-    "Clinical Sign or Laboratory Abnormality": "Clinical sign/lab",
+    "NFC - Clinical Signs": "Clinical Sign or Laboratory Abnormality",
 }
 
 PAPER_RC = {
@@ -73,20 +68,40 @@ def reset():
                                 "mathtext.it": f"{f}:italic", "mathtext.bf": f"{f}:bold"})
 
 
-PANEL_LETTER = re.compile(r"^([A-H])(?:\.\s*|\s+)(?=\S)")
+PANEL_LETTER = re.compile(r"^([A-Ha-h])(?:\.\s*|\s+)(?=\S)")
 
 
 def _panel_letters(fig):
-    """Writes every panel title as 'A  Title': the letter, two spaces, then the title."""
+    """Writes every panel title as 'a  Title': the lower-case letter, two spaces, then the title."""
     for ax in fig.get_axes():
         for t in (ax.title, ax._left_title, ax._right_title):
             m = PANEL_LETTER.match(t.get_text())
             if m:
-                t.set_text(f"{m.group(1)}  {t.get_text()[m.end():]}")
+                t.set_text(f"{m.group(1).lower()}  {t.get_text()[m.end():]}")
 
 
 def _texts(fig):
     return [t for t in fig.findobj(Text) if t.get_visible() and t.get_text().strip()]
+
+
+def wrap_label(label, width=24):
+    """Puts a long category name on two lines: after the colon, or at the space nearest the middle."""
+    if "\n" in label or len(label) <= width:
+        return label
+    if ": " in label:
+        return label.replace(": ", ":\n", 1)
+    spaces = [i for i, c in enumerate(label) if c == " "]
+    if not spaces:
+        return label
+    i = min(spaces, key=lambda k: abs(k - len(label) / 2))
+    return label[:i] + "\n" + label[i + 1:]
+
+
+def set_category_labels(ax, axis="y", wrap=True):
+    """Writes the category tick labels of an axis with the manuscript names, long names on two lines."""
+    a = ax.yaxis if axis == "y" else ax.xaxis
+    labels = [SHORT_LABELS.get(t.get_text(), t.get_text()) for t in a.get_ticklabels()]
+    a.set_ticks(a.get_ticklocs(), [wrap_label(l) if wrap else l for l in labels])
 
 
 def _shorten_ticklabels(ax):
@@ -96,13 +111,48 @@ def _shorten_ticklabels(ax):
             axis.set_ticks(axis.get_ticklocs(), [SHORT_LABELS.get(l, l) for l in labels])
 
 
+def _title_room(ax, t, renderer):
+    """Width available to a panel title: from its left end to the right edge of the figure, or to the
+    labels of the next panel on its right when that panel's title is at the same height."""
+    fig = ax.get_figure(root=True)
+    box = t.get_window_extent(renderer)
+    right = fig.bbox.x1 - 4
+    for other in fig.get_axes():
+        if other is ax:
+            continue
+        o = other.get_tightbbox(renderer)
+        if o is not None and o.x0 > box.x0 + 1 and o.y0 < box.y1 and o.y1 > box.y0:
+            right = min(right, o.x0 - 8)
+    return right - box.x0
+
+
 def _wrap_titles(ax, renderer):
-    """Puts the part of a panel title in brackets on a second line when the title is wider than the panel."""
-    width = ax.get_window_extent(renderer).width
+    """Breaks a panel title that runs into the next panel or past the figure edge: first before the
+    part in brackets, then between words."""
     for t in (ax.title, ax._left_title, ax._right_title):
         text = t.get_text()
-        if " (" in text and "\n" not in text and t.get_window_extent(renderer).width > width:
+        if not text.strip():
+            continue
+        room = _title_room(ax, t, renderer)
+        if t.get_window_extent(renderer).width <= room:
+            continue
+        if " (" in text and "\n" not in text:
             t.set_text(text.replace(" (", "\n(", 1))
+            if t.get_window_extent(renderer).width <= room:
+                continue
+        lines = []
+        for part in t.get_text().split("\n"):
+            line = ""
+            for word in part.split(" "):
+                trial = f"{line} {word}" if line else word
+                t.set_text(trial)
+                if line and t.get_window_extent(renderer).width > room:
+                    lines.append(line)
+                    line = word
+                else:
+                    line = trial
+            lines.append(line)
+        t.set_text("\n".join(lines))
 
 
 def _rebuild_legend(ax, mapped):
@@ -217,6 +267,8 @@ def fit_width(fig, width_mm=WIDTH_MM):
     target = width_mm / 25.4 - 2 * 0.02 - 0.01   # savefig adds pad_inches on each side
     for _ in range(8):
         fig.canvas.draw()
+        for ax in fig.get_axes():
+            _wrap_titles(ax, fig.canvas.get_renderer())
         bbox = fig.get_tightbbox(fig.canvas.get_renderer())
         if bbox.width <= target:
             return

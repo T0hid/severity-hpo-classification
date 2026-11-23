@@ -514,16 +514,16 @@ def run(output_dir, gene_table=None):
     for s in ['top', 'right']:
         axA.spines[s].set_visible(False)
     axA.yaxis.grid(True, color='#e1e0d9', linewidth=0.5); axA.set_axisbelow(True)
-    axA.set_title(f'A  Severity of gene-disease pairs (n = {len(L):,})', loc='left', fontsize=11, fontweight='bold')
+    axA.set_title(f'a  Severity of gene-disease pairs (n = {len(L):,})', loc='left', fontsize=11, fontweight='bold')
     # C
     axC = fig.add_subplot(top[0, 1])
     stacked(axC, list(C.index), [{c: C.at[i, c + '_pct'] for c in CLASSES} for i in C.index], [f'n = {n_:,}' for n_ in C.pairs])
-    axC.set_title('C  Severity by mode of inheritance', loc='left', fontsize=11, fontweight='bold')
+    axC.set_title('c  Severity by mode of inheritance', loc='left', fontsize=11, fontweight='bold')
     # B
     axB = fig.add_subplot(outer[1])
     stacked(axB, list(B.index), [{c: B.at[i, c + '_pct'] for c in CLASSES} for i in B.index], [f'n = {n_:,}' for n_ in B.pairs])
     axB.set_xlabel('Share of gene-disease pairs with a phenotype in the body system (%)')
-    axB.set_title('B  Severity by HPO body system (ranked by Profound share)', loc='left', fontsize=11, fontweight='bold')
+    axB.set_title('b  Severity by HPO body system (ranked by Profound share)', loc='left', fontsize=11, fontweight='bold')
     # D
     axD = fig.add_subplot(bottom[0, 0])
     dlab = {'All genes (base rate)': 'All genes (base rate)', 'ACMG SF v3.2': 'ACMG secondary findings v3.2',
@@ -534,7 +534,7 @@ def run(output_dir, gene_table=None):
             [f'{r.Severe_or_Profound_pct:.0f}%' for _, r in D.iterrows()])
     axD.text(101.5, len(D) - 0.45, 'Severe or\nProfound', fontsize=7.5, color='#52514e', va='bottom', ha='left')
     axD.set_xlabel('Share of genes (%)')
-    axD.set_title('D  Severity of genes in clinical gene lists', loc='left', fontsize=11, fontweight='bold', pad=16)
+    axD.set_title('d  Severity of genes in clinical gene lists', loc='left', fontsize=11, fontweight='bold', pad=16)
     # E
     axE = fig.add_subplot(bottom[0, 1])
     yE = range(len(D))[::-1]
@@ -547,7 +547,7 @@ def run(output_dir, gene_table=None):
     for s in ['top', 'right', 'left']:
         axE.spines[s].set_visible(False)
     axE.xaxis.grid(True, color='#e1e0d9', linewidth=0.5); axE.set_axisbelow(True)
-    axE.set_title('E  Genes with an early-death phenotype (same gene lists)', loc='left', fontsize=11, fontweight='bold', pad=16)
+    axE.set_title('e  Genes with an early-death phenotype (same gene lists)', loc='left', fontsize=11, fontweight='bold', pad=16)
     fig.legend(handles=[Patch(facecolor=COL[c], label=c) for c in CLASSES], loc='upper center', ncol=4, frameon=False,
                bbox_to_anchor=(0.56, 0.995), fontsize=10, title='Severity class', title_fontsize=10)
     style.save(fig, OUT / 'Figure7.pdf'); style.save(fig, OUT / 'Figure7.png')   # 180 mm wide, 5-8 pt text

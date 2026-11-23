@@ -557,9 +557,9 @@ Outputs (all written to OUTPUT_DIR):
 
         qol_domain_mapping = {
             'Physical':  'Physical Functioning',
-            'Cognitive': 'Cognitive/School',
+            'Cognitive': 'School/Cognitive Functioning',
             'Symptoms':  'Physical Symptoms',
-            'Emotional': 'Emotional Impact',
+            'Emotional': 'Emotional Functioning',
             'Social':    'Social Functioning',
         }
 
@@ -598,8 +598,8 @@ Outputs (all written to OUTPUT_DIR):
     # =====================================================================
 
     def create_clinical_landscape_panel(df, colors, output_dir):
-        fig = plt.figure(figsize=(18, 14), layout='constrained')
-        gs = fig.add_gridspec(2, 2, width_ratios=[1.2, 1.2], height_ratios=[1, 1])
+        fig = plt.figure(figsize=(18, 21), layout='constrained')
+        gs = fig.add_gridspec(2, 2, width_ratios=[1.2, 1.2], height_ratios=[1.2, 1])
         ax1 = fig.add_subplot(gs[0, 0])
         ax2 = fig.add_subplot(gs[0, 1])
         ax3 = fig.add_subplot(gs[1, 0])
@@ -616,9 +616,10 @@ Outputs (all written to OUTPUT_DIR):
             total = category_tier.loc[tick.get_text(), 'total']
             ax1.text(102, i, f'N={total}', va='center', ha='left', fontsize=8)
         ax1.set_xlim(0, max(115, ax1.get_xlim()[1]))
+        style.set_category_labels(ax1)
         ax1.set_xlabel('Percentage of Phenotypes (%)')
         ax1.set_ylabel('Classification Category')
-        ax1.set_title('A. Tier Distribution & Volume Within Each Category',
+        ax1.set_title('a   Tier Distribution & Volume Within Each Category',
                       loc='left', fontsize=12)
         ax1.legend(title='Tier', frameon=False, bbox_to_anchor=(1.02, 1), loc='upper left')
 
@@ -626,11 +627,12 @@ Outputs (all written to OUTPUT_DIR):
             'Out of Scope|NFC', na=False, case=False)]
         prevalence = df_onset.groupby('classification_category')['has_early_onset'].mean() * 100
         prevalence.sort_values(ascending=True).plot(kind='barh', ax=ax2, color=colors[4])
+        style.set_category_labels(ax2)
         ax2.set_xlabel('Phenotypes with Early Onset (%)')
         ax2.set_ylabel('')
         contingency = pd.crosstab(df_onset['classification_category'], df_onset['has_early_onset'])
         chi_str, *_ = calculate_chisquare(contingency)
-        ax2.set_title(f'B. Early Onset Prevalence by Category ({chi_str})',
+        ax2.set_title(f'b   Early Onset Prevalence by Category ({chi_str})',
                       loc='left', fontsize=12)
 
         df_cat = df[~df['classification_category'].str.contains('NFC|Out of Scope', na=False)]
@@ -641,7 +643,8 @@ Outputs (all written to OUTPUT_DIR):
                                    df_exp_cat['management_categories'])
             cat_mgmt_pct = cat_mgmt.div(cat_mgmt.sum(axis=1), axis=0) * 100
             cat_mgmt_pct.plot(kind='barh', stacked=True, ax=ax3, colormap='tab20', width=0.8)
-        ax3.set_title('C. Management Profile Across Categories', loc='left', fontsize=12)
+            style.set_category_labels(ax3)
+        ax3.set_title('c   Management Profile Across Categories', loc='left', fontsize=12)
         ax3.set_xlabel('Proportion of Management Types (%)')
         ax3.set_ylabel('Classification Category')
         ax3.legend(title='Management Type', frameon=False,
@@ -654,7 +657,7 @@ Outputs (all written to OUTPUT_DIR):
                                 df_exp_tier['management_categories'])
         tier_mgmt_pct = tier_mgmt.div(tier_mgmt.sum(axis=1), axis=0) * 100
         tier_mgmt_pct.plot(kind='bar', stacked=True, ax=ax4, colormap='tab20', width=0.7)
-        ax4.set_title('D. Management Profile Across Tiers', loc='left', fontsize=12)
+        ax4.set_title('d   Management Profile Across Tiers', loc='left', fontsize=12)
         ax4.set_ylabel('Proportion of Management Types (%)')
         ax4.set_xlabel('Classification Tier')
         ax4.legend(title='Management Type', frameon=False,
@@ -689,7 +692,7 @@ Outputs (all written to OUTPUT_DIR):
         ev_tier_pct.plot(kind='barh', stacked=True, ax=ax1, colormap=cmap, legend=False)
         ax1.set_xlabel('Proportion of Evidence Claims (%)')
         ax1.set_ylabel('Classification Tier')
-        ax1.set_title('A. Evidence Profile by Tier', loc='left', fontsize=12)
+        ax1.set_title('a   Evidence Profile by Tier', loc='left', fontsize=12)
         for n, (index, row) in enumerate(ev_tier_pct.iterrows()):
             cum = 0
             for i, (col, w) in enumerate(row.items()):
@@ -708,7 +711,7 @@ Outputs (all written to OUTPUT_DIR):
             kind='barh', stacked=True, ax=ax2, colormap=cmap, legend=False)
         ax2.set_xlabel('Proportion of Evidence Claims (%)')
         ax2.set_ylabel('Classification Category')
-        ax2.set_title('B. Evidence Profile by Category', loc='left', fontsize=12)
+        ax2.set_title('b   Evidence Profile by Category', loc='left', fontsize=12)
 
         handles, _ = ax1.get_legend_handles_labels()
         fig.legend(handles, ['Direct', 'Valid Infer', 'Weak Infer', 'Unsupported'],
@@ -722,7 +725,7 @@ Outputs (all written to OUTPUT_DIR):
         ax3.set_xlabel('Classification Tier')
         ax3.set_ylabel('Statement Support Score')
         kw_str, *_ = calculate_kruskal(df_f, 'classification_tier', 'statement_support_score')
-        ax3.set_title(f'C. Statement Support Score by Tier ({kw_str})',
+        ax3.set_title(f'c   Statement Support Score by Tier ({kw_str})',
                       loc='left', fontsize=12)
 
         ax4 = fig.add_subplot(gs[1, 1])
@@ -732,7 +735,7 @@ Outputs (all written to OUTPUT_DIR):
         ax4.set_ylabel('Classification Category')
         ax4.set_xlabel('Statement Support Score')
         kw_str, *_ = calculate_kruskal(df_f, 'classification_category', 'statement_support_score')
-        ax4.set_title(f'D. Statement Support Score by Category ({kw_str})',
+        ax4.set_title(f'd   Statement Support Score by Category ({kw_str})',
                       loc='left', fontsize=12)
 
         for ax in [ax1, ax2, ax3, ax4]:
@@ -758,7 +761,7 @@ Outputs (all written to OUTPUT_DIR):
         qol_tier_pct = qol_tier.div(qol_tier.sum(axis=1), axis=0) * 100
         qol_tier_pct.plot(kind='bar', stacked=True, ax=ax1, colormap='plasma')
         chi_str, *_ = calculate_chisquare(qol_tier)
-        ax1.set_title(f'A. QoL Domain Distribution by Tier ({chi_str})',
+        ax1.set_title(f'a   QoL Domain Distribution by Tier ({chi_str})',
                       loc='left', fontsize=12)
         ax1.set_xlabel('Classification Tier')
         ax1.set_ylabel('Percentage of QoL Domains (%)')
@@ -770,7 +773,7 @@ Outputs (all written to OUTPUT_DIR):
         qol_cat_pct = qol_cat.div(qol_cat.sum(axis=1), axis=0) * 100
         qol_cat_pct.plot(kind='barh', stacked=True, ax=ax2, colormap='plasma')
         chi_str, *_ = calculate_chisquare(qol_cat)
-        ax2.set_title(f'B. QoL Domain Distribution by Category ({chi_str})',
+        ax2.set_title(f'b   QoL Domain Distribution by Category ({chi_str})',
                       loc='left', fontsize=12)
         ax2.set_xlabel('Percentage of QoL Domains (%)')
         ax2.set_ylabel('Classification Category')
@@ -803,7 +806,7 @@ Outputs (all written to OUTPUT_DIR):
         ax1.set_xlabel('Percentage of Phenotypes (%)')
         ax1.set_ylabel('Classification Category')
         chi_str, *_ = calculate_chisquare(qol_cat)
-        ax1.set_title(f'A. QoL Status by Classification Category ({chi_str})',
+        ax1.set_title(f'a   QoL Status by Classification Category ({chi_str})',
                       loc='left', fontsize=12)
         ax1.legend(title='QoL Status', frameon=False,
                    bbox_to_anchor=(1.02, 1), loc='upper left')
@@ -815,7 +818,7 @@ Outputs (all written to OUTPUT_DIR):
                           color=[colors[1], colors[2]], rot=0)
         ax2.set_xlabel('Classification Tier')
         ax2.set_ylabel('Percentage of Phenotypes (%)')
-        ax2.set_title('B. QoL Status by Classification Tier',
+        ax2.set_title('b   QoL Status by Classification Tier',
                       loc='left', fontsize=12)
         ax2.legend(title='QoL Status', frameon=False,
                    bbox_to_anchor=(1.02, 1), loc='upper left')
@@ -834,7 +837,7 @@ Outputs (all written to OUTPUT_DIR):
         ax3.set_ylabel('Management Category')
         ax3.set_xlabel('Proportion of Phenotypes (%)')
         chi_str, *_ = calculate_chisquare(qol_mgmt)
-        ax3.set_title(f'C. Management Profile by QoL Status ({chi_str})',
+        ax3.set_title(f'c   Management Profile by QoL Status ({chi_str})',
                       loc='left', fontsize=12)
         ax3.legend(title='QoL Status', frameon=False,
                    bbox_to_anchor=(1.02, 1), loc='upper left')
@@ -862,14 +865,14 @@ Outputs (all written to OUTPUT_DIR):
         ax1.set_xlabel('Number of QoL Domains Affected')
         ax1.set_ylabel('Average Number of Interventions')
         reg_str, *_ = calculate_regression_stats(qol_mgmt.index, qol_mgmt.values)
-        ax1.set_title(f'A. QoL Impact on Management Complexity ({reg_str})',
+        ax1.set_title(f'a   QoL Impact on Management Complexity ({reg_str})',
                       loc='left', fontsize=12)
 
         ax2 = fig.add_subplot(gs[0, 1])
         qol_df = df.explode('qol_domains', ignore_index=True).dropna(subset=['qol_domains'])
         sns.countplot(data=qol_df, y='qol_domains', ax=ax2, color=colors[1],
                       order=qol_df['qol_domains'].value_counts().index)
-        ax2.set_title('B. Frequency of PedsQL QoL Domains', loc='left', fontsize=12)
+        ax2.set_title('b   Frequency of PedsQL QoL Domains', loc='left', fontsize=12)
         ax2.set_xlabel('Count')
         ax2.set_ylabel('QoL Domain')
 
@@ -884,7 +887,7 @@ Outputs (all written to OUTPUT_DIR):
         ax3.set_xlabel('Classification Tier')
         ax3.set_ylabel('Average Number of Interventions')
         kw_str, *_ = calculate_kruskal(df_tier, 'classification_tier', 'num_interventions')
-        ax3.set_title(f'C. Management Complexity by Tier ({kw_str})',
+        ax3.set_title(f'c   Management Complexity by Tier ({kw_str})',
                       loc='left', fontsize=12)
 
         ax4 = fig.add_subplot(gs[1, 1])
@@ -898,7 +901,7 @@ Outputs (all written to OUTPUT_DIR):
         ax4.set_xlabel('Average Number of Interventions')
         ax4.set_ylabel('Classification Category')
         kw_str, *_ = calculate_kruskal(df_cat, 'classification_category', 'num_interventions')
-        ax4.set_title(f'D. Management Complexity by Category ({kw_str})',
+        ax4.set_title(f'd   Management Complexity by Category ({kw_str})',
                       loc='left', fontsize=12)
 
         for ax in [ax1, ax2, ax3, ax4]:
@@ -939,7 +942,7 @@ Outputs (all written to OUTPUT_DIR):
         ax_a.axvline(mean_val, color='red', linestyle='--', linewidth=1.5,
                      label=f'Mean: {mean_val:.2f}')
         ax_a.legend(fontsize=10)
-        ax_a.set_title('C. Distribution of Statement Support Score',   # S3 panel C
+        ax_a.set_title('c   Distribution of Statement Support Score',   # S3 panel C
                        loc='left', fontsize=12, fontweight='bold', pad=8)
         ax_a.set_xlabel('Statement Support Score', fontweight='bold')
         ax_a.set_ylabel('Frequency', fontweight='bold')
@@ -993,7 +996,7 @@ Outputs (all written to OUTPUT_DIR):
             ax_joint.spines[['top', 'right']].set_visible(False)
             ax_joint.grid(linestyle='--', alpha=0.3)
 
-            ax_top.set_title(f'D. Efficiency: Cost vs. Complexity ({corr_str})',   # S3 panel D
+            ax_top.set_title(f'd   Efficiency: Cost vs. Complexity ({corr_str})',   # S3 panel D
                              loc='left', fontsize=12, fontweight='bold', pad=8)
         else:
             ax_joint.text(0.5, 0.5, 'No data available',
@@ -1229,25 +1232,25 @@ Outputs (all written to OUTPUT_DIR):
     #  SECTION 6 : VALIDATION LABEL MAP & UTILITIES
     # =====================================================================
     LABEL_MAP = {
-        'Clinical Sign or Laboratory Abnormality':    'Clinical sign/lab',
+        'Clinical Sign or Laboratory Abnormality':    'Clinical Sign or Laboratory Abnormality',
         'Dysmorphic feature':                         'Dysmorphic feature',
         'Immunodeficiency/cancer':                    'Immunodeficiency/cancer',
         'Impaired mobility':                          'Impaired mobility',
         'Infertility':                                'Infertility',
         'Intellectual disability':                    'Intellectual disability',
-        'Internal physical malformations':            'Internal malformations',
+        'Internal physical malformations':            'Internal physical malformations',
         'Mental illness':                             'Mental illness',
         'NFC (Not Further Classifiable)':             'NFC',
         'Out of Scope/Medical/Environmental':         'Out of Scope',
-        'Sensory Impairment - Hearing':               'Sensory: hearing',
+        'Sensory Impairment - Hearing':               'Sensory impairment: hearing',
         'Out of Scope':                               'Out of Scope',
         'NFC':                                        'NFC',
-        'Sensory Impairment - Touch':                 'Sensory: touch, others',
-        'Sensory Impairment - Vision':                'Sensory: vision',
-        'Sensory impairment - touch, smell, taste':   'Sensory: touch, others',
-        'Shortened life span: adulthood':             'Shortened lifespan: adult',
-        'Shortened life span: childhood/adolescence': 'Shortened lifespan: child',
-        'Shortened life span: infancy':               'Shortened lifespan: infancy',
+        'Sensory Impairment - Touch':                 'Sensory impairment: touch, others',
+        'Sensory Impairment - Vision':                'Sensory impairment: vision',
+        'Sensory impairment - touch, smell, taste':   'Sensory impairment: touch, others',
+        'Shortened life span: adulthood':             'Shortened life span: adulthood',
+        'Shortened life span: childhood/adolescence': 'Shortened life span: childhood/adolescence',
+        'Shortened life span: infancy':               'Shortened life span: infancy',
     }
 
 
@@ -1255,7 +1258,7 @@ Outputs (all written to OUTPUT_DIR):
         clean = str(label).strip()
         if clean in LABEL_MAP:
             return LABEL_MAP[clean]
-        return clean if len(clean) <= 28 else clean[:26] + '...'
+        return clean
 
 
     def calculate_psi(expected, actual):
@@ -1434,7 +1437,7 @@ Outputs (all written to OUTPUT_DIR):
         ax.set_yticks(y)
         ax.set_yticklabels(plot_df.index, fontsize=14)
         ax.set_xlabel('Proportion (%)', fontsize=16, weight='bold')
-        ax.set_title('A   Distribution Comparison\n(Sample vs. Population)',   # Supplementary Figure S3 A
+        ax.set_title('a   Distribution Comparison\n(Sample vs. Population)',   # Supplementary Figure S3 A
                      fontsize=18, weight='bold', loc='left')
         ax.legend(fontsize=12, loc='upper right',
                   bbox_to_anchor=(1.0, -0.1), ncol=2, frameon=True)
@@ -1462,7 +1465,7 @@ Outputs (all written to OUTPUT_DIR):
                     f'{v:.3f}', ha='center', va='bottom', fontsize=13, weight='bold')
         ax.set_ylim(0, 1.05)
         ax.set_ylabel('Score', fontsize=16, weight='bold')
-        ax.set_title('A   Overall Model Performance', fontsize=18, weight='bold', loc='left')   # Figure 2 A
+        ax.set_title('a   Overall Model Performance', fontsize=18, weight='bold', loc='left')   # Figure 2 A
         ax.grid(axis='y', ls='--', alpha=0.3)
         if own:
             fig.tight_layout()
@@ -1490,7 +1493,7 @@ Outputs (all written to OUTPUT_DIR):
                     linewidths=0.5, linecolor='white',
                     cbar_kws={'label': 'Recall Rate (%)', 'shrink': 0.8},
                     annot_kws={'size': 13}, square=True)
-        ax.set_title('B   Normalized Confusion Matrix',   # Supplementary Figure S3 B
+        ax.set_title('b   Normalized Confusion Matrix',   # Supplementary Figure S3 B
                      fontsize=18, weight='bold', loc='left', pad=14)
         ax.set_ylabel('True Category', fontsize=16, weight='bold')
         ax.set_xlabel('Predicted Category', fontsize=16, weight='bold')
@@ -1519,7 +1522,7 @@ Outputs (all written to OUTPUT_DIR):
         ax.set_yticklabels(df.index, fontsize=14)
         ax.set_xlim(0, 1.05)
         ax.set_xlabel('Score', fontsize=16, weight='bold')
-        ax.set_title('B   Performance Metrics by Category',   # Figure 2 B
+        ax.set_title('b   Performance Metrics by Category',   # Figure 2 B
                      fontsize=18, weight='bold', loc='left')
         ax.legend(fontsize=12, loc='upper right',
                   bbox_to_anchor=(1.0, -0.12), ncol=3, frameon=True)
@@ -1545,7 +1548,7 @@ Outputs (all written to OUTPUT_DIR):
         ax.plot([lo, hi], [lo, hi], 'r--', lw=1.5, label='Perfect prediction')
         ax.set_xlabel('True Severity Tier', fontsize=16, weight='bold')
         ax.set_ylabel('Predicted Severity Tier', fontsize=16, weight='bold')
-        ax.set_title('C   Jitter Scatter Plot of Tiers',   # Figure 2 C
+        ax.set_title('c   Jitter Scatter Plot of Tiers',   # Figure 2 C
                      fontsize=18, weight='bold', loc='left')
         ax.legend(fontsize=13)
         ax.set_aspect('equal', adjustable='box')
@@ -1576,7 +1579,7 @@ Outputs (all written to OUTPUT_DIR):
         ax.set_xticklabels(df.index, fontsize=14)
         ax.set_ylim(0, 1.15)
         ax.set_ylabel('Score', fontsize=16, weight='bold')
-        ax.set_title('D   Performance Metrics by Tier',   # Figure 2 D
+        ax.set_title('d   Performance Metrics by Tier',   # Figure 2 D
                      fontsize=18, weight='bold', loc='left')
         ax.legend(fontsize=12, loc='lower center',
                   bbox_to_anchor=(0.5, -0.2), ncol=3, frameon=True)
@@ -1671,7 +1674,7 @@ Outputs (all written to OUTPUT_DIR):
         ax.set_xticks(x); ax.set_xticklabels([m[2] for m in metrics], fontsize=13)
         ax.set_ylim(0, 1.12)
         ax.set_ylabel('Agreement with expert ground truth', fontsize=16, weight='bold')
-        ax.set_title(f'E   Agent vs. No-Retrieval Baseline (n = {n})', fontsize=18, weight='bold', loc='left')
+        ax.set_title(f'e   Agent vs. No-Retrieval Baseline (n = {n})', fontsize=18, weight='bold', loc='left')
         ax.legend(fontsize=12, loc='lower center', bbox_to_anchor=(0.5, -0.32), ncol=2, frameon=True)
         ax.grid(axis='y', ls='--', alpha=0.3)
         if own:
@@ -1697,7 +1700,7 @@ Outputs (all written to OUTPUT_DIR):
         ax.set_yticklabels([f'{short_label(c)} ({n})' for c, n in zip(per.index, per.n)], fontsize=14)
         ax.set_xlim(0, 1.05)
         ax.set_xlabel('Category Accuracy', fontsize=16, weight='bold')
-        ax.set_title('F   Accuracy by Category: Agent vs. Baseline', fontsize=18, weight='bold', loc='left')
+        ax.set_title('f   Accuracy by Category: Agent vs. Baseline', fontsize=18, weight='bold', loc='left')
         ax.legend(fontsize=12, loc='upper right', bbox_to_anchor=(1.0, -0.12), ncol=2, frameon=True)
         ax.grid(axis='x', ls='--', alpha=0.4)
         if own:

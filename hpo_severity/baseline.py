@@ -1,5 +1,5 @@
 """
-No-retrieval baseline of the agent (Figure 2E and 2F).
+No-retrieval baseline of the agent (Figure 2e and 2f).
 
 Each ground-truth term is classified once with the baseline prompt in prompts/baseline/ (the
 classification prompt with the sources and the rules about sources removed), with no retrieved

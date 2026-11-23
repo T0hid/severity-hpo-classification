@@ -96,7 +96,7 @@ def support_iqr(R):
 
 def qol_tier(R):
     t = R.table(R.block("4A. QOL DOMAIN COUNTS BY TIER", "Chi-square (QoL Domains vs Tier)"))
-    cols = ["Cognitive/School", "Emotional Impact", "Physical Functioning", "Physical Symptoms", "Social Functioning"]
+    cols = ["Emotional Functioning", "Physical Functioning", "Physical Symptoms", "School/Cognitive Functioning", "Social Functioning"]
     return {k: dict(zip(cols, v)) for k, v in t.items()}
 
 
@@ -339,18 +339,18 @@ TABLE1 = {1: ("272", "47.7", "31.0", "13.0", "4.2", "4.2"), 2: ("2,966", "71.9",
           3: ("2,351", "49.8", "19.3", "9.2", "10.2", "11.5"), 4: ("1,517", "30.9", "2.5", "4.9", "38.3", "23.5")}
 for tier, vals in TABLE1.items():
     add(f"t1-{tier}-n", "Table 1", f"Tier {tier}: phenotypes", vals[0], lambda R, tier=tier: R.count_line(tier_counts(R), str(tier)), REPORT)
-    for dom, v in zip(("Physical Functioning", "Cognitive/School", "Physical Symptoms", "Emotional Impact", "Social Functioning"), vals[1:]):
+    for dom, v in zip(("Physical Functioning", "School/Cognitive Functioning", "Physical Symptoms", "Emotional Functioning", "Social Functioning"), vals[1:]):
         add(f"t1-{tier}-{dom[:6]}", "Table 1", f"Tier {tier}: {dom} %", v, lambda R, tier=tier, dom=dom: qol_share(R, tier, dom), REPORT)
 add("t1-t4-nodomain", "Table 1", "Tier 4 phenotypes with no affected domain", "1,473",
     lambda R: int(((R.pt.classification_tier == "4") & (R.pt.num_qol_domains == 0)).sum()), PT)
 add("qol-t4-infert", "Results, QoL", "QoL-affected Tier 4 phenotypes (all infertility)", "44", lambda R: qol_cat(R)["Infertility"]["Affected"], REPORT)
 for cat, dom, v in (("Internal physical malformations", "Physical Functioning", "65.1"), ("Dysmorphic feature", "Physical Functioning", "63.0"),
-                    ("Sensory impairment: touch, others", "Physical Functioning", "80.0"), ("Intellectual disability", "Cognitive/School", "57.9"),
+                    ("Sensory impairment: touch, others", "Physical Functioning", "80.0"), ("Intellectual disability", "School/Cognitive Functioning", "57.9"),
                     ("Shortened life span: infancy", "Physical Functioning", "62.9"), ("Shortened life span: infancy", "Physical Symptoms", "22.6"),
-                    ("Shortened life span: childhood/adolescence", "Cognitive/School", "21.8"), ("Shortened life span: childhood/adolescence", "Physical Functioning", "56.3"),
-                    ("Mental illness", "Cognitive/School", "31.6"), ("Mental illness", "Emotional Impact", "31.4"),
-                    ("Sensory Impairment – Vision", "Physical Functioning", "44.9"), ("Sensory Impairment – Vision", "Cognitive/School", "40.6"),
-                    ("Sensory Impairment – Hearing", "Cognitive/School", "44.3"), ("Sensory Impairment – Hearing", "Social Functioning", "42.7")):
+                    ("Shortened life span: childhood/adolescence", "School/Cognitive Functioning", "21.8"), ("Shortened life span: childhood/adolescence", "Physical Functioning", "56.3"),
+                    ("Mental illness", "School/Cognitive Functioning", "31.6"), ("Mental illness", "Emotional Functioning", "31.4"),
+                    ("Sensory Impairment – Vision", "Physical Functioning", "44.9"), ("Sensory Impairment – Vision", "School/Cognitive Functioning", "40.6"),
+                    ("Sensory Impairment – Hearing", "School/Cognitive Functioning", "44.3"), ("Sensory Impairment – Hearing", "Social Functioning", "42.7")):
     add(f"qol-cat-{cat[:14]}-{dom[:6]}", "Results, QoL", f"{cat}: {dom} share of domain mappings %", v,
         lambda R, cat=cat, dom=dom: qol_cat_share(R, cat, dom), PT)
 add("qol-chi2-cat", "Results, QoL", "chi-square, QoL domain by category", "3,621.84", lambda R: R.tests.find(48, col_has="Physical Functioning")["chi2"], "recorded while drawing Figure 5B")
@@ -366,7 +366,7 @@ add("mgmt-5", "Results, management", "interventions with five QoL domains", "2.6
 add("mgmt-r2", "Results, management", "R-squared, interventions by QoL breadth", "0.879", lambda R: float(R.stat(r"Linear Regression: R2=([\d.]+)")[0]), REPORT)
 add("mgmt-r2-p", "Results, management; Methods, statistics", "P, regression", "0.0057",
     lambda R: exact_p(R, "report: linear regression of mean interventions on QoL domain count"), EXACTP)
-for dom, n in (("Physical Functioning", "5,411"), ("Physical Symptoms", "1,349"), ("Cognitive/School", "1,312"), ("Emotional Impact", "606"), ("Social Functioning", "575")):
+for dom, n in (("Physical Functioning", "5,411"), ("Physical Symptoms", "1,349"), ("School/Cognitive Functioning", "1,312"), ("Emotional Functioning", "606"), ("Social Functioning", "575")):
     add(f"mgmt-dom-{dom[:6]}", "Results, management", f"phenotypes affecting {dom}", n, lambda R, dom=dom: R.count_line(R.block("6B. QOL DOMAIN COUNTS", "Interventions, QoL"), dom), REPORT)
 add("mgmt-aff", "Results, management", "mean interventions, QoL affected", "1.55", lambda R: float(R.stat(r"QoL affected vs not affected: mean ([\d.]+)")[0]), REPORT)
 add("mgmt-unaff", "Results, management", "mean interventions, QoL not affected", "0.95", lambda R: float(R.stat(r"QoL affected vs not affected: mean [\d.]+ \(n=\d+\) vs ([\d.]+)")[0]), REPORT)
@@ -523,7 +523,7 @@ add("onset-chi2", "Results, management", "chi-square, early onset by category", 
     lambda R: float(R.stat(r"Chi-square \(Early Onset vs Category\): chi2=([\d.]+), df=12")[0]), REPORT)
 add("s2-radiation", "Supplementary Figure S2 legend", "phenotypes with radiation therapy (left out of Figure S2C)", "1",
     lambda R: int(R.stat(r"left out of Supplementary Figure S2C\): (\d+)")[0]), REPORT)
-add("gl-noinh", "Results, gene level; Figure 7C legend", "classified pairs without inheritance", "38", lambda R: R.log_int(r"pairs without inheritance annotation \(left out\): (\d+)")[0], GLOG)
+add("gl-noinh", "Results, gene level; Figure 7c legend", "classified pairs without inheritance", "38", lambda R: R.log_int(r"pairs without inheritance annotation \(left out\): (\d+)")[0], GLOG)
 add("m-list-sf", "Methods", "ACMG SF v3.2 genes", "81", lambda R: R.f7row("7D", "gene_set", "ACMG SF v3.2").genes_in_list, F7)
 add("m-list-cs", "Methods", "ACMG carrier screening genes", "113", lambda R: R.f7row("7D", "gene_set", "ACMG carrier screening").genes_in_list, F7)
 add("m-list-mm", "Methods", "Mackenzie's Mission genes", "1,300", lambda R: R.f7row("7D", "gene_set", "Mackenzie's Mission").genes_in_list, F7)
