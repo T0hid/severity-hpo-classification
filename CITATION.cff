@@ -8,6 +8,6 @@ authors:
     email: tohid.ghasemnejad@unsw.edu.au
 license: MIT
 repository-code: "https://github.com/T0hid/severity-hpo-classification"
-version: 1.0.0
+version: 1.0.1
 doi: 10.5281/zenodo.24463716
-date-released: "2026-11-23"
+date-released: "2026-11-24"
