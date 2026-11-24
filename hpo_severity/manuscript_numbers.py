@@ -356,37 +356,37 @@ for cat, dom, v in (("Internal physical malformations", "Physical Functioning", 
 add("qol-chi2-cat", "Results, QoL", "chi-square, QoL domain by category", "3,621.84", lambda R: R.tests.find(48, col_has="Physical Functioning")["chi2"], "recorded while drawing Figure 5B")
 
 # ================================================================== Results: management (Figure 6)
-add("mgmt-0", "Results, management", "interventions with no QoL domain", "0.89", lambda R: float(R.stat(r"0 domains: ([\d.]+)")[0]), REPORT)
+add("mgmt-0", "Results, management", "interventions with no QoL domain", "0.65", lambda R: float(R.stat(r"0 domains: ([\d.]+)")[0]), REPORT)
 add("mgmt-n0", "Results, management", "phenotypes with no QoL domain listed", "4,198", lambda R: int((R.pt.num_qol_domains == 0).sum()), PT)
-for k, v in ((1, "1.53"), (2, "1.73"), (3, "1.72"), (4, "1.95")):
+for k, v in ((1, "1.52"), (2, "1.72"), (3, "1.72"), (4, "1.95")):
     add(f"mgmt-{k}", "Results, management", f"mean intervention types with {k} QoL domain(s)", v,
         lambda R, k=k: R.pt[R.pt.num_qol_domains == k].num_interventions.mean(), PT)
 add("mgmt-n5", "Results, management", "phenotypes with all five QoL domains", "3", lambda R: int((R.pt.num_qol_domains == 5).sum()), PT)
 add("mgmt-5", "Results, management", "interventions with five QoL domains", "2.67", lambda R: float(R.stat(r"5 domains: ([\d.]+)")[0]), REPORT)
-add("mgmt-r2", "Results, management", "R-squared, interventions by QoL breadth", "0.879", lambda R: float(R.stat(r"Linear Regression: R2=([\d.]+)")[0]), REPORT)
-add("mgmt-r2-p", "Results, management; Methods, statistics", "P, regression", "0.0057",
+add("mgmt-r2", "Results, management", "R-squared, interventions by QoL breadth", "0.868", lambda R: float(R.stat(r"Linear Regression: R2=([\d.]+)")[0]), REPORT)
+add("mgmt-r2-p", "Results, management; Methods, statistics", "P, regression", "0.0068",
     lambda R: exact_p(R, "report: linear regression of mean interventions on QoL domain count"), EXACTP)
 for dom, n in (("Physical Functioning", "5,411"), ("Physical Symptoms", "1,349"), ("School/Cognitive Functioning", "1,312"), ("Emotional Functioning", "606"), ("Social Functioning", "575")):
     add(f"mgmt-dom-{dom[:6]}", "Results, management", f"phenotypes affecting {dom}", n, lambda R, dom=dom: R.count_line(R.block("6B. QOL DOMAIN COUNTS", "Interventions, QoL"), dom), REPORT)
-add("mgmt-aff", "Results, management", "mean interventions, QoL affected", "1.55", lambda R: float(R.stat(r"QoL affected vs not affected: mean ([\d.]+)")[0]), REPORT)
-add("mgmt-unaff", "Results, management", "mean interventions, QoL not affected", "0.95", lambda R: float(R.stat(r"QoL affected vs not affected: mean [\d.]+ \(n=\d+\) vs ([\d.]+)")[0]), REPORT)
-add("mgmt-mw-p", "Results, management", "Mann-Whitney P", "1.7 × 10⁻²⁷⁶",
+add("mgmt-aff", "Results, management", "mean interventions, QoL affected", "1.53", lambda R: float(R.stat(r"QoL affected vs not affected: mean ([\d.]+)")[0]), REPORT)
+add("mgmt-unaff", "Results, management", "mean interventions, QoL not affected", "0.72", lambda R: float(R.stat(r"QoL affected vs not affected: mean [\d.]+ \(n=\d+\) vs ([\d.]+)")[0]), REPORT)
+add("mgmt-mw-p", "Results, management", "Mann-Whitney P", "2.7 × 10⁻⁴¹³",
     lambda R: exact_p(R, "report: Mann-Whitney interventions, QoL affected vs not affected"), EXACTP)
-for tier, mean, sd in ((1, "1.71", "0.92"), (3, "1.55", "0.80"), (2, "1.48", "0.89"), (4, "0.90", "0.62")):
+for tier, mean, sd in ((1, "1.70", "0.93"), (3, "1.53", "0.82"), (2, "1.45", "0.92"), (4, "0.46", "0.72")):
     add(f"mgmt-t{tier}-mean", "Results, management", f"Tier {tier} mean interventions", mean, lambda R, tier=tier: mgmt_tier(R, tier, "mean"), REPORT)
     add(f"mgmt-t{tier}-sd", "Results, management", f"Tier {tier} SD", sd, lambda R, tier=tier: mgmt_tier(R, tier, "std"), REPORT)
-add("mgmt-kw-tier", "Results, management", "Kruskal-Wallis H(3), interventions by tier", "721.32", lambda R: float(R.stat(r"Kruskal-Wallis: H\(3\)=([\d.]+)")[0]), REPORT)
-add("mgmt-life-lo", "Results, management", "lowest mean, shortened-lifespan categories", "1.89",
+add("mgmt-kw-tier", "Results, management", "Kruskal-Wallis H(3), interventions by tier", "1,494.29", lambda R: float(R.stat(r"Kruskal-Wallis: H\(3\)=([\d.]+)")[0]), REPORT)
+add("mgmt-life-lo", "Results, management", "lowest mean, shortened-lifespan categories", "1.88",
     lambda R: min(mgmt_cat(R, c) for c in ("Shortened life span: infancy", "Shortened life span: childhood/adolescence", "Shortened life span: adulthood")), REPORT)
 add("mgmt-life-hi", "Results, management", "highest mean, shortened-lifespan categories", "2.00",
     lambda R: max(mgmt_cat(R, c) for c in ("Shortened life span: infancy", "Shortened life span: childhood/adolescence", "Shortened life span: adulthood")), REPORT)
-add("mgmt-immuno", "Results, management", "mean interventions, immunodeficiency/cancer", "1.70", lambda R: mgmt_cat(R, "Immunodeficiency/cancer"), REPORT)
-add("mgmt-sens-lo", "Results, management", "lowest mean, sensory impairments", "1.45",
+add("mgmt-immuno", "Results, management", "mean interventions, immunodeficiency/cancer", "1.69", lambda R: mgmt_cat(R, "Immunodeficiency/cancer"), REPORT)
+add("mgmt-sens-lo", "Results, management", "lowest mean, sensory impairments", "1.43",
     lambda R: min(mgmt_cat(R, c) for c in ("Sensory Impairment – Hearing", "Sensory Impairment – Vision", "Sensory impairment: touch, others")), REPORT)
-add("mgmt-sens-hi", "Results, management", "highest mean, sensory impairments", "1.68",
+add("mgmt-sens-hi", "Results, management", "highest mean, sensory impairments", "1.66",
     lambda R: max(mgmt_cat(R, c) for c in ("Sensory Impairment – Hearing", "Sensory Impairment – Vision", "Sensory impairment: touch, others")), REPORT)
-add("mgmt-dys", "Results, management", "mean interventions, dysmorphic features (fewest)", "1.08", lambda R: mgmt_cat(R, "Dysmorphic feature"), REPORT)
-add("mgmt-kw-cat", "Results, management", "Kruskal-Wallis H(12), interventions by category", "569.04", lambda R: float(R.stat(r"Kruskal-Wallis: H\(12\)=([\d.]+)")[0]), REPORT)
+add("mgmt-dys", "Results, management", "mean interventions, dysmorphic features (fewest)", "0.75", lambda R: mgmt_cat(R, "Dysmorphic feature"), REPORT)
+add("mgmt-kw-cat", "Results, management", "Kruskal-Wallis H(12), interventions by category", "1,040.31", lambda R: float(R.stat(r"Kruskal-Wallis: H\(12\)=([\d.]+)")[0]), REPORT)
 
 # ================================================================== Results: QoL status (Figure S2, Supplementary Table 2)
 SUPP2 = (("Internal physical malformations", "2,256", "2,218", "98.3"), ("Impaired mobility", "687", "687", "100.0"),
@@ -540,8 +540,8 @@ add("m-once", "Methods, statistics", "distinct terms (each term classified once)
 for id_, where, what, printed, key in (
         ("p-qol-tier", "Results, QoL", "P, QoL domain by tier (chi-square)", "6.2 × 10⁻²¹¹", "report: chi-square QoL domain x tier"),
         ("p-qol-cat", "Results, QoL", "P, QoL domain by category (chi-square)", "1.1 × 10⁻⁷³⁴", "figure: chi-square classification_category x qol_domains"),
-        ("p-mgmt-tier", "Results, management", "P, interventions by tier (Kruskal-Wallis)", "5.0 × 10⁻¹⁵⁶", "report: Kruskal-Wallis interventions by tier"),
-        ("p-mgmt-cat", "Results, management", "P, interventions by category (Kruskal-Wallis)", "4.3 × 10⁻¹¹⁴", "report: Kruskal-Wallis interventions by category"),
+        ("p-mgmt-tier", "Results, management", "P, interventions by tier (Kruskal-Wallis)", "1.0 × 10⁻³²³", "report: Kruskal-Wallis interventions by tier"),
+        ("p-mgmt-cat", "Results, management", "P, interventions by category (Kruskal-Wallis)", "4.0 × 10⁻²¹⁵", "report: Kruskal-Wallis interventions by category"),
         ("p-onset-cat", "Results, management", "P, early onset by category (chi-square)", "7.9 × 10⁻²³⁵", "report: chi-square early onset x category"),
         ("p-s2-cat", "Results, QoL status", "P, QoL status by category (chi-square)", "7.6 × 10⁻⁵⁹²", "report: chi-square QoL status x category"),
         ("p-s2-mgmt", "Results, QoL status", "P, management by QoL status (chi-square)", "7.8 × 10⁻⁴⁹⁶", "figure: chi-square QoL_assessment x management_categories"),

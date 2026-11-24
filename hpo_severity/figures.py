@@ -525,7 +525,8 @@ Outputs (all written to OUTPUT_DIR):
                 return []
 
         df['management_categories'] = df['management_profile'].apply(extract_mgmt_categories)
-        df['num_interventions'] = df['management_categories'].apply(len)
+        df['num_interventions'] = df['management_categories'].apply(
+            lambda c: len([x for x in c if x != 'No Treatment']))
 
         def parse_verification_log(log_string):
             if pd.isna(log_string):
