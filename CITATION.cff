@@ -1,4 +1,4 @@
-cff-version: 1.0.2
+cff-version: 1.2.0
 message: "If you use this code, please cite the article."
 title: "Code for: Large Language Model Agents for Evidence Based Genetic Disease Severity Classification"
 type: software
@@ -8,6 +8,6 @@ authors:
     email: tohid.ghasemnejad@unsw.edu.au
 license: MIT
 repository-code: "https://github.com/T0hid/severity-hpo-classification"
-version: 1.0.1
+version: 1.0.2
 doi: 10.5281/zenodo.24463716
 date-released: "2026-11-24"
