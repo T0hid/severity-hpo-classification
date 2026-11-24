@@ -424,7 +424,7 @@ Outputs (all written to OUTPUT_DIR):
             lp = XP.chi2(h_stat, dof)
             XP.record(f'figure: Kruskal-Wallis {value_col} by {group_col}', 'Kruskal-Wallis H test',
                       f'H({dof}) = {h_stat:.2f}', lp)
-            return f"H({dof}) = {h_stat:.2f}, {format_pvalue(lp)}", h_stat, p_val, dof
+            return f"H({dof}) = {h_stat:,.2f}, {format_pvalue(lp)}", h_stat, p_val, dof
         except Exception as e:
             print(f"Warning: Kruskal-Wallis failed - {e}")
             return "", None, None, None
